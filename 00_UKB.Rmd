@@ -1,0 +1,50 @@
+---
+_title: '00_UKB'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressWarnings(library(dplyr))
+suppressWarnings(library(ggplot2))
+suppressWarnings(library(readr))
+suppressWarnings(source("_helpers_misc.R"))
+suppressWarnings(source("_helpers_data_misc.R"))
+suppressWarnings(source("_helpers_results_files.R"))
+suppressWarnings(source("_helpers_file_logic.R"))
+suppressWarnings(source("_helpers_plots.R"))
+suppressWarnings(source("_helpers_qq.R"))
+suppressWarnings(source("_helpers_comparison_plots.R"))
+```
+
+# Setup
+
+```{r folders, echo=FALSE, cache=TRUE}
+results_dir <- 'results'
+if(!dir.exists(results_dir)) dir.create(results_dir)
+
+plots_dir_ <- file.path(results_dir, "plots")
+if(!dir.exists(plots_dir_)) dir.create(plots_dir_)
+
+plots_dir <- file.path(plots_dir_, "ukb")
+if(!dir.exists(plots_dir)) dir.create(plots_dir)
+```
+
+# MT-PrediXcan is better: UKB cholesterol
+
+```{r ukb_cholesterol, echo=FALSE, cache=TRUE}
+chol_predixcan <- load_folder("data/ukb/predixcan",".txt", white_list=c("UKB_High_cholesterol")) %>% rename(tissue=model)
+chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/UKB_High_cholesterol_c20002_1536.txt"))
+
+(function(){
+  (qq_plot_mt_vs_all_univariate(chol_multi_predixcan, chol_predixcan, "Whole_Blood") + 
+     ggplot2::ggtitle("Significance QQ-Plot")) %>%
+    save_png(file.path(plots_dir, "UKB_Cholesterol_qq.png"), 600, 600)
+  
+  (significant_discoveries_bar_plot(chol_multi_predixcan, chol_predixcan, "Whole_Blood") + 
+     ggplot2::ggtitle("Significant Associations")) %>%
+    save_png(file.path(plots_dir, "UKB_Cholesterol_significant_bars.png"), 600, 600)
+})
+```
+
+
