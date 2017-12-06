@@ -32,19 +32,21 @@ if(!dir.exists(plots_dir)) dir.create(plots_dir)
 
 # MT-PrediXcan is better: UKB cholesterol
 
-```{r ukb_cholesterol, echo=FALSE, cache=TRUE}
+```{r ukb_cholesterol_data, echo=FALSE, cache=TRUE}
 chol_predixcan <- load_folder("data/ukb/predixcan",".txt", white_list=c("UKB_High_cholesterol")) %>% rename(tissue=model)
 chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/UKB_High_cholesterol_c20002_1536.txt"))
+```
 
+```{r ukb_cholesterol_plot, echo=FALSE, cache=TRUE}
 (function(){
   (qq_plot_mt_vs_all_univariate(chol_multi_predixcan, chol_predixcan, "Whole_Blood") + 
-     ggplot2::ggtitle("Significance QQ-Plot")) %>%
+     ggplot2::ggtitle("Significance QQ-Plot", subtitle="Cholesterol in UK Biobank")) %>%
     save_png(file.path(plots_dir, "UKB_Cholesterol_qq.png"), 600, 600)
   
   (significant_discoveries_bar_plot(chol_multi_predixcan, chol_predixcan, "Whole_Blood") + 
-     ggplot2::ggtitle("Significant Associations")) %>%
+     ggplot2::ggtitle("Significant Associations", subtitle="Cholesterol in UK Biobank")) %>%
     save_png(file.path(plots_dir, "UKB_Cholesterol_significant_bars.png"), 600, 600)
-})
+})()
 ```
 
 
