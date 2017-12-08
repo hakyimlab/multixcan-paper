@@ -57,11 +57,25 @@ def figure_1(args):
     to_png(_p, t)
     os.remove(_p)
 
+def shove(args):
+    def _shove(args, files, file_prefix=""):
+        for sf in files:
+            shutil.copy(os.path.join(args.plots_folder, *sf),
+                        os.path.join(args.output_folder, file_prefix + sf[len(sf) - 1].replace("_", "-")))
+
+    figures = [("ukb","smt_vs_mt_ukb.png",)]
+    _shove(args, figures, file_prefix="fig-")
+
+    supp_figures = [("ukb", "smt_vs_mt_ukb_1.png",),
+                    ("ukb", "smt_vs_mt_ukb_2.png",)]
+    _shove(args, supp_figures, "supp-fig-")
+
 ########################################################################################################################
 def run(args):
     if not os.path.exists(args.output_folder):
         os.makedirs(args.output_folder)
 
+    shove(args)
     figure_1(args)
 
 if __name__ == "__main__":

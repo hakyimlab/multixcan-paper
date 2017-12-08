@@ -1,4 +1,7 @@
-
+remove_id_from_ensemble <- function(v) {
+  k <- gsub("\\.(.*)", "", v)
+  return(k)
+}
 
 significant_by_tissue <- function(data) {
   d_ <- data %>% filter(!is.na(pvalue))

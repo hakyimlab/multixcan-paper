@@ -41,3 +41,15 @@ significant_discoveries_bar_plot <- function(mt_predixcan, predixcan, selected_m
     scale_fill_manual(values=c("#0072B2", "#009E73", "#D55E00"),
                       limits=c("CrossTissueXcan", "PrediXcan,\nAll Tissues", label_s_))
 }
+
+scatter_plot_mt <- function(mt1, mt2) {
+  mt_scatter_data_(mt1, mt2) %>% mt_scatter_plot_() %>% mt_scatter_plot_theme_()
+}
+
+do_scatter_plot_mt_vs_smt <- function(names) {
+  mtm <- load_mt_results(names$mtp, names$name)
+  smtm <- load_mt_results(names$smtp, names$name)
+  scatter_plot_mt(mtm, smtm) + 
+    xlab("CrossTissueXcan F-Test (log scale)") +
+    ylab("Summary CrossTissueXcan")
+}

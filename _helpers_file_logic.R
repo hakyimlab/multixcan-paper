@@ -70,6 +70,21 @@ ukb_file_metadata_mt_mt  <- function(ukb_column_to_name, mt1, mt2) {
 
 ###############################################################################
 
+#mt or smt actually
+load_mt_results <- function(paths, names, columns=c("gene", "pvalue")) {
+  d <- data.frame()
+  for (i in 1:length(paths)) {
+    path_ <- paths[i]
+    name_ <- names[i]
+    d_ <- suppressMessages(read_tsv(path_)) %>% dplyr::select_(.dots=columns) %>% dplyr::mutate(phenotype = name_)
+    d <- rbind(d, d_)
+  }
+  d$phenotype <- factor(d$phenotype, levels=names)
+  d
+}
+
+###############################################################################
+
 get_ukb_names <- function(column_to_name, folder){
   n_ <- readr::read_csv(column_to_name) %>% 
     dplyr::mutate(id = gsub("c", "", id)) %>% 

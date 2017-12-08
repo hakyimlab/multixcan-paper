@@ -14,6 +14,7 @@ suppressWarnings(source("_helpers_results_files.R"))
 suppressWarnings(source("_helpers_file_logic.R"))
 suppressWarnings(source("_helpers_plots.R"))
 suppressWarnings(source("_helpers_qq.R"))
+suppressWarnings(source("_helpers_scatter.R"))
 suppressWarnings(source("_helpers_comparison_plots.R"))
 ```
 
@@ -28,6 +29,10 @@ if(!dir.exists(plots_dir_)) dir.create(plots_dir_)
 
 plots_dir <- file.path(plots_dir_, "ukb")
 if(!dir.exists(plots_dir)) dir.create(plots_dir)
+
+gencode <- read.delim("data/gencode.v19.flat.txt.gz")
+
+names <- ukb_file_metadata_smt_mt("data/ukb/ukb_column_to_name.csv", "data/ukb/smt_ukb_ccn_30", "data/ukb/mt_ukb_cn30")
 ```
 
 # MT-PrediXcan is better: UKB cholesterol
@@ -49,4 +54,53 @@ chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/U
 })()
 ```
 
+```{r cholesterol_tables, echo=FALSE, cache=TRUE}
+(function() {
+  p <- chol_predixcan %>% 
+    dplyr::inner_join(gencode, by="gene") %>% 
+    dplyr::select(gene, gene_name, tissue, zscore, pvalue) %>%
+    dplyr::arrange(pvalue) %>%
+    dplyr::filter(pvalue < 0.05/nrow(chol_predixcan))
+  write.table(p, file.path(results_dir, "ukb_high_cholesterol_predixcan_significant.txt"), row.names = FALSE, quote=FALSE, sep = "\t")
+  
+  mtp <- chol_multi_predixcan %>% 
+    dplyr::inner_join(gencode, by="gene") %>% 
+    dplyr::select(gene, gene_name, pvalue) %>%
+    dplyr::arrange(pvalue) %>%
+    dplyr::filter(pvalue < 0.05/nrow(chol_multi_predixcan))
+  write.table(mtp, file.path(results_dir, "ukb_high_cholesterol_multi_predixcan_significant.txt"), row.names = FALSE, quote=FALSE, sep = "\t")
+  
+  pg <- p$gene %>% unique()
+  mtpg <- mtp$gene %>% unique()
+  p %>% filter(gene %in% pg[!(pg %in% mtpg)]) %>% arrange(pvalue)
+  mtp %>% filter(gene %in% mtpg[!(mtpg %in% pg)]) %>% arrange(pvalue)
+})()
+```
 
+
+```{r scatter_plots, echo=FALSE, cache=TRUE}
+(function(){
+  selected_ <- c("UKB_Trunk_fat_percentage", "UKB_Sleep_duration", "UKB_Asthma")
+  names_c_ <- names %>% dplyr::filter(name %in% selected_)
+  
+  (do_scatter_plot_mt_vs_smt (names_c_) + 
+    ggtitle("S-CrossTissueXcan can infer individual-level CrossTissueXcan") + 
+    facet_wrap(~phenotype, scales="fixed")) %>% ratools::save_plot(file.path(plots_dir, "smt_vs_mt_ukb.png"), height=400, width=900)
+  
+  selected_mt_vs_smt <- function(names, selected, title, subtitle, path) {
+    selected <- gsub("UKB_", "",  selected)
+    names_ <- names %>% mutate(name = gsub("UKB_", "", name)) %>% dplyr::filter(name %in% selected) %>% mutate(name = factor(name, levels=selected)) %>% arrange(name)
+    (do_scatter_plot_mt_vs_smt (names_) + ggtitle(title, subtitle=subtitle) + facet_wrap(~phenotype, scales="free", ncol =3)) %>% ratools::save_plot(path, height=1000, width=1000)
+  }
+
+  selected_ <- c("UKB_BMI", "UKB_Body_fat_percentage", "UKB_Hand_grip_strength_left", 
+                 "UKB_Bread_intake", "UKB_Fresh_fruit_intake", "UKB_Water_intake", 
+                 "UKB_Stress", "UKB_Alcohol_dependency", "UKB_Duration_of_vigorous_activity")
+  selected_mt_vs_smt(names, selected_, "UK Biobank", "Anthropometric and Lifestyle Traits", file.path(plots_dir, "smt_vs_mt_ukb_1.png"))
+  
+  selected_ <- c("UKB_Fluid_intelligence_score", "UKB_Asthma", "UKB_Age_asthma_diagnosed",
+    "UKB_Eczema_aka_dermatitis", "UKB_Diabetes", "UKB_Age_diabetes_diagnosed",
+    "UKB_Forced_vital_capacity_Best_measure", "UKB_Fracture", "UKB_Hayfever_aka_allergic_rhinitis")
+  selected_mt_vs_smt(names, selected_, "UK Biobank", "Miscellaneous Traits", file.path(plots_dir, "smt_vs_mt_ukb_2.png"))
+})()
+```
