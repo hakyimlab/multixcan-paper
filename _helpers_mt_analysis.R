@@ -9,7 +9,7 @@ spredixcan_significant_gtex_ <- function(sp) {
 
 smt_significant_minus_suspicious_ <- function(smt) {
   smt_ <- smt %>% dplyr::filter(!is.null(pvalue)) %>% dplyr::mutate(gene = remove_id_from_ensemble(gene))
-  smt_ %>% dplyr::filter(pvalue < 0.05/nrow(smt_), p_i_best<1e-4)
+  smt_ %>% dplyr::filter(pvalue < 0.05/nrow(smt_) & p_i_best<1e-4)
 }
 
 get_m_smt_stats_ <- function(m_, smt_) {
