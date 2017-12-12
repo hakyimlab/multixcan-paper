@@ -1,0 +1,52 @@
+---
+title: "01_GWAS.Rmd"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressWarnings(library(dplyr))
+suppressWarnings(library(ggplot2))
+suppressWarnings(library(readr))
+suppressWarnings(source("_helpers_misc.R"))
+suppressWarnings(source("_helpers_data_misc.R"))
+suppressWarnings(source("_helpers_file_logic.R"))
+suppressWarnings(source("_helpers_plots.R"))
+suppressWarnings(source("_helpers_mt_analysis.R"))
+```
+
+## R Markdown
+
+```{r folders, echo=FALSE, cache=TRUE}
+results_dir <- 'results'
+if(!dir.exists(results_dir)) dir.create(results_dir)
+
+plots_dir_ <- file.path(results_dir, "plots")
+if(!dir.exists(plots_dir_)) dir.create(plots_dir_)
+
+plots_dir <- file.path(plots_dir_, "gwas")
+if(!dir.exists(plots_dir)) dir.create(plots_dir)
+
+phenos <- read.delim("data/phenos.txt")
+pheno_whitelist <- phenos %>% dplyr::filter(!ignore) %>% .$pheno
+
+selected_gwas <- read.delim("data/selected_gwas.txt")
+pheno_info <- read_tsv("data/gene2pheno_info.txt")
+```
+
+
+```{r mt_metaxcan_analysis, echo=FALSE, cache=TRUE}
+analisis_results <- get_mt_metaxcan_analysis("data/gene2pheno_dev_hm_1.5", "data/smt/smt_gwas_ccn_30")#, verbose=TRUE)
+```
+
+```{r mt_metaxcan_analysis_output, echo=FALSE, cache=TRUE}
+stats <- pheno_info %>% select(tag, consortium, name) %>% inner_join(analisis_results$stats, by="tag")
+p_save_delim(stats, file.path(results_dir, "gwas_summary_multi_tissue_stats_f.txt"))
+plot_n_significant_comparison(stats, threshold=400) %>% save_png( file.path(plots_dir, "smt_vs_sp_number_significant.png"), height=800, width=800)
+plot_n_significant_only_comparison(stats) %>% save_png( file.path(plots_dir, "smt_only_vs_sp_only_number_significant.png"), height=800, width=800)
+
+sp_significant <- pheno_info %>% select(tag, consortium, name) %>% 
+  inner_join(analisis_results$sp_significant, by=c("tag"="phenotype")) %>%
+  select(-p_smr,-p_heidi,-twas_pvalue,-p_h0, -p_h1, -p_h2, -p_h3, -p_h4)
+p_save_delim(sp_significant, file.path(results_dir, "gwas_summary_multi_tissue_significant.txt"))
+```

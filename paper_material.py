@@ -26,8 +26,8 @@ def _advance_cursor(c, x, y):
     return (c[0]+x, c[1]+y)
 
 
-def _kot(dwg, _c, text, ox=-40, oy=50):
-    dwg.add(dwg.text(text, insert=(_c[0]+ox, _c[1]+oy), fill='black', style="font-size:40;font-family:Arial;font-weight:bold;stroke:black;stroke-width:1;fill:black"))
+def _kot(dwg, _c, text, ox=-40, oy=50, style="font-size:40;font-family:Arial;font-weight:bold;stroke:black;stroke-width:1;fill:black"):
+    dwg.add(dwg.text(text, insert=(_c[0]+ox, _c[1]+oy), fill='black', style=style))
 
 def figure_1(args):
     _p = "_fig1.svg"#os.path.join(args.output_folder, "fig1.svg")
@@ -57,6 +57,28 @@ def figure_1(args):
     to_png(_p, t)
     os.remove(_p)
 
+def figure_3(args):
+    _p = "_fig3.svg"#os.path.join(args.output_folder, "fig1.svg")
+
+    _1_size = (800, 800)
+    _size = (_1_size[0]*2+100, _1_size[1])
+
+    dwg = svgwrite.Drawing(_p, size=_size)
+    dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
+
+    _c = (50,0) # conceptual cursor
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "smt_vs_sp_number_significant.png"), _c, _1_size))
+    _kot(dwg, _c, "a", ox=-30, oy=50, style="font-size:60;font-family:Arial;font-weight:bold;stroke:black;stroke-width:1;fill:black")
+
+    _c =_advance_cursor (_c, _1_size[0]+40, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "smt_only_vs_sp_only_number_significant.png"), _c, _1_size))
+    _kot(dwg, _c, "b", ox=-30, oy=50, style="font-size:60;font-family:Arial;font-weight:bold;stroke:black;stroke-width:1;fill:black")
+
+    dwg.save()
+    t = os.path.join(args.output_folder, "fig-gwas-smt-vs-sp-significant.png")
+    to_png(_p, t)
+    os.remove(_p)
+
 def shove(args):
     def _shove(args, files, file_prefix=""):
         for sf in files:
@@ -77,6 +99,7 @@ def run(args):
 
     shove(args)
     figure_1(args)
+    figure_3(args)
 
 if __name__ == "__main__":
     class Dummy(object):
