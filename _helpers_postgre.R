@@ -28,6 +28,14 @@ db_gene2pheno_ <- function() {
                  password="M3t4xc4n")       
 }
 
+db_gene2pheno_old_ <- function() {
+  DBI::dbConnect(drv, host="gene2pheno.ccsriudvs1y0.us-east-1.rds.amazonaws.com",
+                 port="5432",
+                 dbname="release_2017_09_14",
+                 user="metaxcan_ro",
+                 password="M3t4Xc4nR0")
+}
+
 get_all_pheno_names <- function(connection) {
   p <- DBI::dbGetQuery(connection, "SELECT tag FROM pheno")
   return(p$tag)

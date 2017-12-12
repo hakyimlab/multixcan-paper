@@ -8,3 +8,15 @@ paper_plot_theme_a <- function() {
                  legend.text = ggplot2::element_text(size = 15)) + 
   ggplot2::theme(legend.position="bottom",legend.direction="horizontal")
 }
+
+save_png <- function(plot, path, height, width, res=NA) {
+  png(path, height=height, width=width, res=res)
+  print(plot)
+  dev.off()
+}
+
+save_svg <- function(plot, path, height, width) {
+  svg(path, height=height, width=width)
+  print(plot)
+  dev.off()
+}

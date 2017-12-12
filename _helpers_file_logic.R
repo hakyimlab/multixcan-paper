@@ -25,6 +25,12 @@ get_mt_files_d_ <- function(mt) {
     dplyr::mutate(mtp = file.path(mt, mtp))
 }
 
+get_files_d_ <- function(path) {
+  data.frame(name=list.files(path)) %>%
+    dplyr::mutate(path = file.path(path,name)) %>%
+    dplyr::mutate(name=gsub(".txt", "", name))
+}
+
 ###############################################################################
 ukb_file_metadata_smt_mt <- function(ukb_column_to_name, smt, mt) {
   n_ <- get_ukb_columns_d_(ukb_column_to_name)

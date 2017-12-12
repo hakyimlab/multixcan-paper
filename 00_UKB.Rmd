@@ -60,15 +60,15 @@ chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/U
     dplyr::inner_join(gencode, by="gene") %>% 
     dplyr::select(gene, gene_name, tissue, zscore, pvalue) %>%
     dplyr::arrange(pvalue) %>%
-    dplyr::filter(pvalue < 0.05/nrow(chol_predixcan))
-  write.table(p, file.path(results_dir, "ukb_high_cholesterol_predixcan_significant.txt"), row.names = FALSE, quote=FALSE, sep = "\t")
+    dplyr::filter(pvalue < 0.05/nrow(chol_predixcan)) %>%
+    p_save_delim(file.path(results_dir, "ukb_high_cholesterol_predixcan_significant.txt"))
   
   mtp <- chol_multi_predixcan %>% 
     dplyr::inner_join(gencode, by="gene") %>% 
     dplyr::select(gene, gene_name, pvalue) %>%
     dplyr::arrange(pvalue) %>%
-    dplyr::filter(pvalue < 0.05/nrow(chol_multi_predixcan))
-  write.table(mtp, file.path(results_dir, "ukb_high_cholesterol_multi_predixcan_significant.txt"), row.names = FALSE, quote=FALSE, sep = "\t")
+    dplyr::filter(pvalue < 0.05/nrow(chol_multi_predixcan)) %>%
+    p_save_delim(file.path(results_dir, "ukb_high_cholesterol_multi_predixcan_significant.txt"))
   
   pg <- p$gene %>% unique()
   mtpg <- mtp$gene %>% unique()
@@ -85,12 +85,12 @@ chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/U
   
   (do_scatter_plot_mt_vs_smt (names_c_) + 
     ggtitle("S-CrossTissueXcan can infer individual-level CrossTissueXcan") + 
-    facet_wrap(~phenotype, scales="fixed")) %>% ratools::save_plot(file.path(plots_dir, "smt_vs_mt_ukb.png"), height=400, width=900)
+    facet_wrap(~phenotype, scales="fixed")) %>% save_png(file.path(plots_dir, "smt_vs_mt_ukb.png"), height=400, width=900)
   
   selected_mt_vs_smt <- function(names, selected, title, subtitle, path) {
     selected <- gsub("UKB_", "",  selected)
     names_ <- names %>% mutate(name = gsub("UKB_", "", name)) %>% dplyr::filter(name %in% selected) %>% mutate(name = factor(name, levels=selected)) %>% arrange(name)
-    (do_scatter_plot_mt_vs_smt (names_) + ggtitle(title, subtitle=subtitle) + facet_wrap(~phenotype, scales="free", ncol =3)) %>% ratools::save_plot(path, height=1000, width=1000)
+    (do_scatter_plot_mt_vs_smt (names_) + ggtitle(title, subtitle=subtitle) + facet_wrap(~phenotype, scales="free", ncol =3)) %>% save_png(path, height=1000, width=1000)
   }
 
   selected_ <- c("UKB_BMI", "UKB_Body_fat_percentage", "UKB_Hand_grip_strength_left", 
