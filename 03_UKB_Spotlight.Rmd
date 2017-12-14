@@ -1,0 +1,57 @@
+---
+title: "04_UKB_Spotlight"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressWarnings(library(dplyr))
+suppressWarnings(library(ggplot2))
+suppressWarnings(library(readr))
+```
+
+# Preliminaries
+
+```{r folders, echo=FALSE, cache=TRUE}
+results_dir <- 'results'
+if(!dir.exists(results_dir)) dir.create(results_dir)
+
+plots_dir_ <- file.path(results_dir, "plots")
+if(!dir.exists(plots_dir_)) dir.create(plots_dir_)
+
+plots_dir <- file.path(plots_dir_, "ukb")
+if(!dir.exists(plots_dir)) dir.create(plots_dir)
+
+gencode <- read.delim("data/gencode.v19.flat.txt.gz")
+```
+
+
+```{r ukb_cholesterol_data, echo=FALSE, cache=TRUE}
+chol_p_ <- read_tsv("results/ukb_high_cholesterol_predixcan_significant.txt") %>% rename(model = tissue)
+chol_p <- chol_p_ %>% group_by(gene, gene_name) %>% summarise(n_significant_models=n()) %>% inner_join(chol_p_ %>% group_by(gene, gene_name)  %>% top_n(1,pvalue))
+
+chol_mtp <- read_tsv("results/ukb_high_cholesterol_multi_predixcan_significant.txt")
+
+chol_p
+chol_mtp
+```
+
+
+```{r CHOL_GENES, echo=FALSE, cache=TRUE}
+chol_p_genes <- chol_p$gene_name %>% unique()
+chol_mtp_genes <- chol_mtp$gene_name %>% unique()
+
+chol_shared_genes <- chol_p_genes[chol_p_genes %in% chol_mtp_genes]
+chol_p_only_genes <- chol_p_genes[!(chol_p_genes %in% chol_mtp_genes)]
+chol_mtp_only_genes <- chol_mtp_genes[!(chol_mtp_genes %in% chol_p_genes)]
+```
+
+```{r CHOL_SHARED_GENES, echo=FALSE, cache=TRUE}
+chol_p %>% filter(gene_name %in% chol_shared_genes)
+chol_mtp %>% filter(gene_name %in% chol_shared_genes) %>% select(gene_name, pvalue)
+```
+
+```{r CHOL_DIFFERENT_GENES, echo=FALSE, cache=TRUE}
+chol_p %>% filter(!(gene_name %in% chol_shared_genes))
+chol_mtp %>% filter(!(gene_name %in% chol_shared_genes)) %>% select(gene_name, pvalue)
+```
