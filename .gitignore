@@ -16,4 +16,6 @@ Previous
 *.pyc
 DIST
 
+0*.pdf
+
 *ipynb_checkpoints

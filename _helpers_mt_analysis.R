@@ -12,6 +12,11 @@ smt_significant_minus_suspicious_ <- function(smt) {
   smt_ %>% dplyr::filter(pvalue < 0.05/nrow(smt_) & p_i_best<1e-4)
 }
 
+smt_significant_suspicious_ <- function(smt) {
+  smt_ <- smt %>% dplyr::filter(!is.null(pvalue)) %>% dplyr::mutate(gene = remove_id_from_ensemble(gene))
+  smt_ %>% dplyr::filter(pvalue < 0.05/nrow(smt_)) %>% mutate(suspicious = (pvalue < 0.05/nrow(smt_) & p_i_best>1e-4))
+}
+
 get_m_smt_stats_ <- function(m_, smt_) {
   m_significant_ <-spredixcan_significant_gtex_(m_)
   m_genes_ <- unique(m_significant_$gene)
@@ -33,6 +38,7 @@ get_mt_metaxcan_analysis <- function(metaxcan_data_folder, smt_folder, verbose=F
     dplyr::rename(m_p=path, smt_p=smtp)
   
   sp_significant <- data.frame()
+  smt_significant <- data.frame()
   stats <- data.frame()
   for (i in 1:nrow(file_logic)) {
     l_ <- file_logic[i,]
@@ -45,9 +51,12 @@ get_mt_metaxcan_analysis <- function(metaxcan_data_folder, smt_folder, verbose=F
     
     sp_significant_ <- spredixcan_significant_gtex_(m_)
     sp_significant <- rbind(sp_significant, sp_significant_)
+    
+    smt_significant_ <- smt_significant_suspicious_(smt_)
+    smt_significant <- rbind(smt_significant, smt_significant_)
   }
   
-  list(stats=stats, sp_significant=sp_significant)
+  list(stats=stats, sp_significant=sp_significant, smt_significant=smt_significant)
 }
 
 plot_n_significant_comparison_ <- function(d, threshold) {

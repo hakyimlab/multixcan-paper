@@ -1,0 +1,111 @@
+---
+title: "R Notebook"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE)
+suppressWarnings(library(dplyr))
+suppressWarnings(library(readr))
+suppressWarnings(source("_helpers_misc.R"))
+```
+
+# Preliminaries
+
+```{r preliminaries, echo=FALSE, cache=TRUE}
+results_dir <- 'results'
+if(!dir.exists(results_dir)) dir.create(results_dir)
+```
+
+```{r data, echo=FALSE, cache=TRUE}
+sps <- suppressMessages(read_tsv("results/gwas_sp_significant.txt"))
+smts <- suppressMessages(read_tsv("results/gwas_summary_crosstissuexcan_significant.txt"))
+```
+
+# EGG
+
+
+```{r EGG_SP, echo=FALSE, cache=TRUE}
+egg_sp <- sps %>% filter(tag == "EGG_BMI_HapMapImputed") %>% arrange(pvalue)
+egg_sp_top_genes <- egg_sp %>% group_by(gene_name) %>% top_n(n=-1, wt=pvalue)
+message("EGG S-Predixcan")
+egg_sp_top_genes %>% arrange(pvalue) %>% select(gene_name, model, pvalue)
+```
+
+```{r EGG_SMT, echo=FALSE, cache=TRUE}
+egg_smt <- smts %>% filter(tag=="EGG_BMI_HapMapImputed") %>% arrange(pvalue)
+message("EGG CrossTissueXcan")
+egg_smt %>% select(gene_name, suspicious, pvalue)
+```
+
+
+```{r EGG_GENES, echo=FALSE, cache=TRUE}
+egg_sp_genes <- egg_sp$gene_name %>% unique()
+egg_smt_genes <- egg_smt$gene_name %>% unique()
+
+egg_shared_genes <- egg_sp_genes[egg_sp_genes %in% egg_smt_genes]
+egg_sp_only_genes <- egg_sp_genes[!(egg_sp_genes %in% egg_smt_genes)]
+egg_smt_only_genes <- egg_smt_genes[!(egg_smt_genes %in% egg_sp_genes)]
+```
+
+```{r EGG_SHARED_GENES, echo=FALSE, cache=TRUE}
+egg_sp_top_genes %>% filter(gene_name %in% egg_shared_genes) %>% select(gene_name, model, pvalue)
+egg_smt %>% filter(gene_name %in% egg_shared_genes) %>% select(gene_name, suspicious, pvalue)
+```
+```{r EGG_DIFFERENT_GENES, echo=FALSE, cache=TRUE}
+egg_sp_top_genes %>% filter(!(gene_name %in% egg_shared_genes)) %>% select(gene_name, model, pvalue)
+egg_smt %>% filter(!(gene_name %in% egg_shared_genes)) %>% select(gene_name, suspicious, pvalue)
+```
+
+# CAD
+
+```{r CAD_SP, echo=FALSE, cache=TRUE}
+cad_sp <- sps %>% filter(tag == "CARDIoGRAM_C4D_CAD_ADDITIVE") %>% arrange(pvalue)
+cad_sp_top_genes <- cad_sp %>% group_by(gene_name) %>% top_n(n=-1, wt=pvalue)
+cad_sp_top_genes %>% arrange(pvalue) %>% select(gene_name, model, pvalue)
+```
+
+```{r CAD_SMT, echo=FALSE, cache=TRUE}
+cad_smt <- smts %>% filter(tag=="CARDIoGRAM_C4D_CAD_ADDITIVE") %>% arrange(pvalue)
+message("CAD CrossTissueXcan")
+cad_smt %>% arrange(-suspicious) %>% select(gene_name, suspicious, pvalue)
+cad_smt %>% filter(suspicious == FALSE)  %>% select(gene_name, pvalue)
+```
+
+```{r CAD_GENES, echo=FALSE, cache=TRUE}
+cad_sp_genes <- cad_sp$gene_name %>% unique()
+cad_smt_genes <- cad_smt$gene_name %>% unique()
+
+cad_shared_genes <- cad_sp_genes[cad_sp_genes %in% cad_smt_genes]
+cad_sp_only_genes <- cad_sp_genes[!(cad_sp_genes %in% cad_smt_genes)]
+cad_smt_only_genes <- cad_smt_genes[!(cad_smt_genes %in% cad_sp_genes)]
+
+cad_shared_genes
+cad_sp_only_genes
+cad_smt_only_genes
+```
+
+```{r CAD_SHARED_GENES, echo=FALSE, cache=TRUE}
+cad_sp_top_genes %>% filter(gene_name %in% cad_shared_genes) %>% select(gene_name, model, pvalue)
+cad_smt %>% filter(gene_name %in% cad_shared_genes) %>% arrange(-suspicious) %>% select(gene_name, suspicious, pvalue)
+cad_smt %>% filter(gene_name %in% cad_shared_genes, suspicious==FALSE) %>% select(gene_name, pvalue)
+```
+
+```{r CAD_DIFFERENT_GENES, echo=FALSE, cache=TRUE}
+cad_sp_top_genes %>% filter(!(gene_name %in% cad_shared_genes)) %>% select(gene_name, model, pvalue)
+cad_smt %>% filter(!(gene_name %in% cad_shared_genes)) %>% arrange(-suspicious) %>% select(gene_name, suspicious, pvalue)
+cad_smt %>% filter(!(gene_name %in% cad_shared_genes), suspicious==FALSE) %>% select(gene_name, pvalue)
+```
+
+
+
+```{r supp_data_spredixcan_significant, echo=FALSE, cache=TRUE}
+s_sp <- sps %>% filter(tag %in% c("EGG_BMI_HapMapImputed","CARDIoGRAM_C4D_CAD_ADDITIVE")) %>% select(-name) %>%
+  p_save_delim(file.path(results_dir, "gwas_sp_significant_spotlight.txt"))
+  
+
+```
