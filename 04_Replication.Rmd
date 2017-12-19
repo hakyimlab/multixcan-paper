@@ -1,0 +1,52 @@
+---
+title: "04_MetaAnalysis.Rmd"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Preliminaries
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressWarnings(library(readr))
+suppressWarnings(library(dplyr))
+suppressWarnings(library(ggplot2))
+suppressWarnings(source("_helpers_misc.R"))
+suppressWarnings(source("_helpers_file_logic.R"))
+suppressWarnings(source("_helpers_replication.R"))
+```
+
+
+```{r preliminaries, echo=FALSE}
+results_dir <- 'results'
+if(!dir.exists(results_dir)) dir.create(results_dir)
+
+plots_dir <- file.path(results_dir, "plots")
+if(!dir.exists(plots_dir)) dir.create(plots_dir)
+```
+
+```{r replication_prelim, echo=FALSE, cache=TRUE}
+gwas_pheno_info <- read_tsv("data/gene2pheno_info.txt")
+ukb_pheno_info <- read_tsv("data/ukb/ukb_mt_pheno_info.txt")
+ukb_names <- get_mt_files_d_("data/ukb/mt_ukb_cn30")
+gwas_names <- get_files_d_("data/smt/smt_gwas_ccn_30") %>% mutate(name = gsub("_ccn_30", "", name))
+replication_spec <- get_replication_spec_gwas_ukb ("data/replication.csv", gwas_names, ukb_names)
+```
+
+```{r replication, echo=FALSE, cache=TRUE}
+replication_stats <- get_replication_analisis(replication_spec)#, verbose=TRUE)
+replication_stats <- replication_supplement_stx_tx(replication_stats, gwas_pheno_info, ukb_pheno_info)
+```
+```{r replication_postprocessing, echo=FALSE, cache=TRUE}
+p_save_delim(replication_stats, file.path(results_dir, "replication_stats.txt"))
+
+replication_stats %>% mutate(replication = gsub("UKB_", "", replication)) %>% 
+  mutate(frac_r=replicated_genes/discovery_significant_genes, percent_replicated = scales::percent(replicated_genes/discovery_significant_genes)) %>%
+  arrange(discovery) %>% mutate(discovery=textify(discovery), replication=textify(replication)) %>%
+  select(discovery, replication, discovery_significant_genes, replicated_genes, percent_replicated, discovery_sample_size, replication_sample_size) %>%
+  xtable::xtable() %>% print(type="latex", include.rownames=FALSE, file="results/replication_stats.tex")
+    
+```

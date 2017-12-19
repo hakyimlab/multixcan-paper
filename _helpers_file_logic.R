@@ -114,9 +114,19 @@ get_gwas_names_from_multi_tissue <- function(folder) {
 
 univariate_file_logic <- function(path) {
   names <- path %>% list.files() %>% sort()
-  r <- data.frame(path = file.path(path, names), name=names)
+  r <- data.frame(path = file.path(path, names), name=names, stringsAsFactors = FALSE)
   r <- r %>% dplyr::mutate(pheno = gsub("(.*)_TW_(.*).txt", "\\1", name)) %>%
     dplyr::mutate(tissue = gsub("(.*)_TW_(.*).txt", "\\2", name)) %>%
     dplyr::mutate(name = gsub("_c([0-9_c]*)$", "", pheno, perl = TRUE))
   r
+}
+
+load_univariate_files <- function(file_logic, read_f_=r_tsv_) {
+  data <- data.frame()
+  for (i in 1:nrow(file_logic)) {
+    l_ <- file_logic[i,]
+    d_ <- read_f_(l_$path) %>% dplyr::mutate(phenotype = l_$name, model=l_$tissue)
+    data <- rbind(data, d_)
+  }
+  data
 }

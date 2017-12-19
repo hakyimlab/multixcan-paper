@@ -35,7 +35,7 @@ def figure_1(args):
     # diagram is (341,972); plots are 600,600
     _1_size = (341, 972)
     _2_size = (470, 470)
-    _size = (_1_size[0]+130+_2_size[0], 980)
+    _size = (_1_size[0]+180+_2_size[0]*2, 980)
 
     dwg = svgwrite.Drawing(_p, size=_size)
     dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
@@ -48,9 +48,17 @@ def figure_1(args):
     dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_qq.png"), _c, _2_size))
     _kot(dwg, _c, "b", ox=-20, oy=30)
 
-    _c =_advance_cursor (_c, 0, _2_size[1]+40)
+    _c =_advance_cursor (_c, _2_size[0]+50, 0)
     dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_significant_bars.png"), _c, _2_size))
     _kot(dwg, _c, "c", ox=-20, oy=30)
+
+    _c = (_1_size[0] + 130, _2_size[1] + 40)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "ukb_mt_vs_p_number_significant.png"), _c, _2_size))
+    _kot(dwg, _c, "d", ox=-20, oy=30)
+
+    _c =_advance_cursor (_c, _2_size[0]+50, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "ukb_mt_only_vs_p_only_number_significant.png"), _c, _2_size))
+    _kot(dwg, _c, "e", ox=-20, oy=30)
 
     dwg.save()
     t = os.path.join(args.output_folder, "fig-multi-tissue-better-than-predixcan.png")
@@ -72,7 +80,7 @@ def figure_2(args):
     dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "PGC_scz2_qq.png"), _c, _1_size))
     _kot(dwg, _c, "a", ox=-20, oy=30)
 
-    _c =_advance_cursor (_c, _1_size[1]+40, 0)
+    _c =_advance_cursor (_c, _1_size[1]+0, 0)
     dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "PGC_scz2_significant_bars.png"), _c, _1_size))
     _kot(dwg, _c, "b", ox=-20, oy=30)
 
@@ -89,19 +97,27 @@ def figure_2(args):
     to_png(_p, t)
     os.remove(_p)
 
-
 def shove(args):
-    def _shove(args, files, file_prefix=""):
+    def _shove(input_folder, output_folder, files, file_prefix=""):
         for sf in files:
-            shutil.copy(os.path.join(args.plots_folder, *sf),
-                        os.path.join(args.output_folder, file_prefix + sf[len(sf) - 1].replace("_", "-")))
+            shutil.copy(os.path.join(input_folder, *sf),
+                        os.path.join(output_folder, file_prefix + sf[len(sf) - 1].replace("_", "-")))
 
     figures = [("ukb","smt_vs_mt_ukb.png",)]
-    _shove(args, figures, file_prefix="fig-")
+    _shove(args.plots_folder, args.output_folder, figures, file_prefix="fig-")
 
     supp_figures = [("ukb", "smt_vs_mt_ukb_1.png",),
                     ("ukb", "smt_vs_mt_ukb_2.png",)]
-    _shove(args, supp_figures, "supp-fig-")
+    _shove(args.plots_folder, args.output_folder, supp_figures, "supp-fig-")
+
+    supp_data =[("gwas_traits.txt",),
+                ("gwas_stissuexcan_stats.txt",),
+                ("gwas_stissuexcan_significant.txt",),
+                ("gwas_sp_significant.txt",),
+                ("ukb_tissuexcan_stats.txt",),
+                ("ukb_p_significant.txt",),
+                ("ukb_tissuexcan_significant.txt",)]
+    _shove(args.input_folder, args.output_folder, supp_data, "supp-data-")
 
 ########################################################################################################################
 def run(args):

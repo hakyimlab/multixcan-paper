@@ -9,13 +9,13 @@ suppressWarnings(library(dplyr))
 suppressWarnings(library(ggplot2))
 suppressWarnings(library(readr))
 suppressWarnings(source("_helpers_misc.R"))
-suppressWarnings(source("_helpers_data_misc.R"))
 suppressWarnings(source("_helpers_results_files.R"))
 suppressWarnings(source("_helpers_file_logic.R"))
 suppressWarnings(source("_helpers_plots.R"))
 suppressWarnings(source("_helpers_qq.R"))
 suppressWarnings(source("_helpers_scatter.R"))
 suppressWarnings(source("_helpers_comparison_plots.R"))
+suppressWarnings(source("_helpers_mt_analysis.R"))
 ```
 
 # Setup
@@ -60,23 +60,22 @@ chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/U
     dplyr::inner_join(gencode, by="gene") %>% 
     dplyr::select(gene, gene_name, tissue, zscore, pvalue) %>%
     dplyr::arrange(pvalue) %>%
-    dplyr::filter(pvalue < 0.05/nrow(chol_predixcan)) %>%
-    p_save_delim(file.path(results_dir, "ukb_high_cholesterol_predixcan_significant.txt"))
+    dplyr::filter(pvalue < 0.05/nrow(chol_predixcan))
+  p %>% p_save_delim(file.path(results_dir, "ukb_high_cholesterol_predixcan_significant.txt"))
   
   mtp <- chol_multi_predixcan %>% 
     dplyr::inner_join(gencode, by="gene") %>% 
     dplyr::select(gene, gene_name, pvalue) %>%
     dplyr::arrange(pvalue) %>%
-    dplyr::filter(pvalue < 0.05/nrow(chol_multi_predixcan)) %>%
-    p_save_delim(file.path(results_dir, "ukb_high_cholesterol_multi_predixcan_significant.txt"))
+    dplyr::filter(pvalue < 0.05/nrow(chol_multi_predixcan))
+  mtp %>%  p_save_delim(file.path(results_dir, "ukb_high_cholesterol_tissuexcan_significant.txt"))
   
-  pg <- p$gene %>% unique()
-  mtpg <- mtp$gene %>% unique()
-  p %>% filter(gene %in% pg[!(pg %in% mtpg)]) %>% arrange(pvalue)
-  mtp %>% filter(gene %in% mtpg[!(mtpg %in% pg)]) %>% arrange(pvalue)
+  #pg <- p$gene %>% unique()
+  #mtpg <- mtp$gene %>% unique()
+  #p %>% filter(gene %in% pg[!(pg %in% mtpg)]) %>% arrange(pvalue)
+  #mtp %>% filter(gene %in% mtpg[!(mtpg %in% pg)]) %>% arrange(pvalue)
 })()
 ```
-
 
 ```{r scatter_plots, echo=FALSE, cache=TRUE}
 (function(){
@@ -103,4 +102,25 @@ chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/U
     "UKB_Forced_vital_capacity_Best_measure", "UKB_Fracture", "UKB_Hayfever_aka_allergic_rhinitis")
   selected_mt_vs_smt(names, selected_, "UK Biobank", "Miscellaneous Traits", file.path(plots_dir, "smt_vs_mt_ukb_2.png"))
 })()
+```
+
+
+# MT-PrediXcan vs PrediXcan
+
+```{r mt_analysis, echo=FALSE, cache=TRUE}
+analisis_results <- get_mt_predixcan_analysis("data/ukb/mt_ukb_cn30", "data/ukb/predixcan")#, verbose=TRUE)
+```
+
+```{r mt_metaxcan_analysis_output, echo=FALSE, cache=TRUE}
+stats <- analisis_results$stats
+p_save_delim(stats, file.path(results_dir, "ukb_tissuexcan_stats.txt"))
+
+plot_n_significant_comparison_i(stats, threshold=800) %>% save_png( file.path(plots_dir, "ukb_mt_vs_p_number_significant.png"), height=800, width=800)
+plot_n_significant_only_comparison_i(stats, threshold=800) %>% save_png( file.path(plots_dir, "ukb_mt_only_vs_p_only_number_significant.png"), height=800, width=800)
+
+p_significant <- analisis_results$p_significant %>% inner_join(gencode, by="gene") %>% select(phenotype, model, gene, gene_name, zscore,  pvalue,  n_samples)
+p_save_delim(p_significant, file.path(results_dir, "ukb_p_significant.txt"))
+
+mt_significant <- analisis_results$mt_significant %>% inner_join(gencode, by="gene") %>% select(phenotype, gene, gene_name, pvalue, n_models, n_used, n_samples)
+p_save_delim(mt_significant, file.path(results_dir, "ukb_tissuexcan_significant.txt"))
 ```
