@@ -10,7 +10,6 @@ suppressWarnings(library(ggplot2))
 suppressWarnings(library(readr))
 suppressWarnings(library(ggpubr))
 suppressWarnings(source("_helpers_misc.R"))
-suppressWarnings(source("_helpers_data_misc.R"))
 suppressWarnings(source("_helpers_file_logic.R"))
 suppressWarnings(source("_helpers_plots.R"))
 suppressWarnings(source("_helpers_mt_analysis.R"))
@@ -87,7 +86,7 @@ scz2_multi_predixcan <- suppressMessages(readr::read_tsv("data/smt/smt_gwas_ccn_
   (qq_plot_mt_vs_all_univariate(scz2_multi_predixcan_, scz2_predixcan, "Brain_Cerebellum") +ggtitle("Significance QQ-Plot", subtitle="PGC Schizophrenia")) %>%
     save_png(file.path(plots_dir, "PGC_scz2_qq.png"), 600, 600)
   
-  (significant_discoveries_bar_plot(scz2_multi_predixcan_, scz2_predixcan, "Brain_Cerebellum") + ggplot2::ggtitle("Significant Associations", subtitle="PGC Schizophrenia")) %>%
+  (significant_discoveries_bar_plot(scz2_multi_predixcan_, scz2_predixcan, "Brain_Cerebellum") + ggplot2::ggtitle("Number of significant genes", subtitle="PGC Schizophrenia")) %>%
     save_png(file.path(plots_dir, "PGC_scz2_significant_bars.png"), 600, 600)
 })()
 ```

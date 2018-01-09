@@ -106,8 +106,7 @@ def shove(args):
     figures = [("ukb","smt_vs_mt_ukb.png",)]
     _shove(args.plots_folder, args.output_folder, figures, file_prefix="fig-")
 
-    supp_figures = [("ukb", "smt_vs_mt_ukb_1.png",),
-                    ("ukb", "smt_vs_mt_ukb_2.png",)]
+    supp_figures = [("ukb", "smt_vs_mt_ukb_supp.png",),]
     _shove(args.plots_folder, args.output_folder, supp_figures, "supp-fig-")
 
     supp_data =[("gwas_traits.txt",),
@@ -135,7 +134,7 @@ if __name__ == "__main__":
             self.output_folder = "results/paper_material"
             self.plots_folder = "results/plots"
             self.input_folder = "results"
-            self.input_folder_2 = "data/images"
+            self.input_folder_2 = "images"
 
     args = Dummy()
     run(args)
