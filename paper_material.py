@@ -35,6 +35,7 @@ def figure_1(args):
     # diagram is (341,972); plots are 600,600
     _1_size = (341, 972)
     _2_size = (470, 470)
+    _3_size = (455.0*470/571, 470)
     _size = (_1_size[0]+180+_2_size[0]*2, 980)
 
     dwg = svgwrite.Drawing(_p, size=_size)
@@ -52,12 +53,12 @@ def figure_1(args):
     dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_significant_bars.png"), _c, _2_size))
     _kot(dwg, _c, "c", ox=-20, oy=30)
 
-    _c = (_1_size[0] + 130, _2_size[1] + 40)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "ukb_mt_vs_p_number_significant.png"), _c, _2_size))
+    _c = (_1_size[0] + 130 + math.ceil((_2_size[0]-_3_size[0])/2.0), _2_size[1] + 40)
+    dwg.add(dwg.image(os.path.join(args.input_folder_2, "tissuexcan_illustration.png"), _c, _2_size))
     _kot(dwg, _c, "d", ox=-20, oy=30)
 
     _c =_advance_cursor (_c, _2_size[0]+50, 0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "ukb_mt_only_vs_p_only_number_significant.png"), _c, _2_size))
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "ukb_mt_vs_p_number_significant.png"), _c, _2_size))
     _kot(dwg, _c, "e", ox=-20, oy=30)
 
     dwg.save()
@@ -69,8 +70,9 @@ def figure_1(args):
 def figure_2(args):
     _p = "_fig2.svg"#os.path.join(args.output_folder, "fig1.svg")
 
-    # diagram is (341,972); plots are 600,600
+    # diagram is (341,972); plots are 600,600; illustration is 455,571
     _1_size = (600, 600)
+    _2_size = (600, 507*600.0/610)
     _size = (_1_size[0]*2+80, _1_size[1]*2+40)
 
     dwg = svgwrite.Drawing(_p, size=_size)
@@ -84,8 +86,8 @@ def figure_2(args):
     dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "PGC_scz2_significant_bars.png"), _c, _1_size))
     _kot(dwg, _c, "b", ox=-20, oy=30)
 
-    _c = (40,_1_size[1]+40) # conceptual cursor
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "smt_vs_sp_number_significant.png"), _c, _1_size))
+    _c = (40+math.ceil(_1_size[0]-_2_size[0])/2.0,_1_size[1]+40) # conceptual cursor
+    dwg.add(dwg.image(os.path.join(args.input_folder_2, "stissuexcan_illustration_2.png"), _c, _1_size))
     _kot(dwg, _c, "c", ox=-20, oy=30)
 
     _c =_advance_cursor (_c, _1_size[0]+40, 0)
