@@ -128,7 +128,7 @@ mt_vs_smt_summary <-  get_mt_vs_smt_summary_(names)
 (plot_conservative_fraction(mt_vs_smt_summary) + 
     ggplot2::ggtitle("Underestimated Significant Associations", subtitle ="Traits in UK Biobank") +
     ggplot2::xlab("Proportion of underestimated signals") +
-    ggplot2::ylab("#(traits)") +
+    ggplot2::ylab("Number of traits") +
     scale_x_continuous(breaks = scales::pretty_breaks(n = 3)) +
     scale_y_continuous(breaks = scales::pretty_breaks(n = 3))) %>%
   save_png(file.path(plots_dir, "proportion_underestimated_ukb.png"), 700, 700)
