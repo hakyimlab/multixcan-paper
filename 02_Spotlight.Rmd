@@ -23,7 +23,7 @@ if(!dir.exists(results_dir)) dir.create(results_dir)
 
 ```{r data, echo=FALSE, cache=TRUE}
 sps <- suppressMessages(read_tsv("results/gwas_sp_significant.txt"))
-smts <- suppressMessages(read_tsv("results/gwas_summary_crosstissuexcan_significant.txt"))
+smts <- suppressMessages(read_tsv("results/gwas_stissuexcan_significant.txt"))
 ```
 
 # EGG

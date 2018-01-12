@@ -148,3 +148,38 @@ plot_n_significant_only_comparison_i <- function(stats, threshold=200) {
     ggplot2::ggtitle("Significant associations\neither in TissueXcan or PrediXcan", subtitle="# significant associations only on one method") + 
     paper_plot_theme_a()
 }
+
+
+###############################################################################
+
+mt_vs_smt_summary_ <- function(mt, smt, name) {
+  m_ <- mt %>% dplyr::inner_join(smt, by="gene")
+  m_ <- m_ %>%  dplyr::mutate(mtw=(pvalue.x < pvalue.y))
+  b_ <- 0.05/nrow(mt)
+  m__ <- m_ %>% dplyr::filter(pvalue.x < b_)
+
+  data.frame(name, 
+             genes_total=nrow(m_), 
+             genes_conservative=sum(m_$mtw), 
+             t_significant_genes=nrow(mt %>% dplyr::filter(pvalue < b_)), 
+             t_significant_genes_conservative=sum(m__$mtw), 
+             stringsAsFactors = FALSE)
+}
+
+get_mt_vs_smt_summary_ <- function(names, verbose=FALSE) {
+  r_ <- data.frame()
+  for (i in 1:nrow(names)) {
+    name <- names$name[i]
+    if (verbose) message(name)
+    mt <- r_tsv_(names$mtp[i]) %>% dplyr::mutate(gene = remove_id_from_ensemble(gene)) %>% dplyr::select(gene, pvalue)
+    smt <- r_tsv_(names$smtp[i]) %>% dplyr::select(gene, pvalue, p_i_best)
+    s_ <- mt_vs_smt_summary_(mt, smt, name)
+    r_ <- rbind(r_, s_)
+  }
+  r_
+}
+
+plot_conservative_fraction <- function(mt_vs_smt_summary) {
+  mt_vs_smt_summary %>% dplyr::mutate(f = t_significant_genes_conservative/t_significant_genes) %>% ggplot2::ggplot(ggplot2::aes(f)) + 
+    paper_plot_theme_a() + geom_histogram(color="black", binwidth=0.1)
+}

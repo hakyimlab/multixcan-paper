@@ -69,12 +69,12 @@ p_save_delim(smt_significant, file.path(results_dir, "gwas_stissuexcan_significa
 # Example trait: Schizophrenia
 
 
-```{r ukb_cholesterol_data, echo=FALSE, cache=TRUE}
+```{r scz2_data, echo=FALSE, cache=TRUE}
 scz2_predixcan <- suppressMessages(readr::read_tsv("data/gene2pheno_dev_hm_1.5/pgc.scz2.txt")) %>% select(gene=gene, gene_name=gene_name,tissue=model,pvalue=pval)
 scz2_multi_predixcan <- suppressMessages(readr::read_tsv("data/smt/smt_gwas_ccn_30/pgc.scz2_ccn_30.txt"))
 ```
 
-```{r ukb_cholesterol_plot, echo=FALSE, cache=TRUE}
+```{r scz2_plot, echo=FALSE, cache=TRUE}
 (function(){
   # a <- qq_plot_mt_vs_all_univariate(scz2_multi_predixcan, scz2_predixcan, "Brain_Cerebellum") +ggtitle("Significance QQ-Plot", subtitle="PGC Schizophrenia")
   # b <- significant_discoveries_bar_plot(scz2_multi_predixcan, scz2_predixcan, "Brain_Cerebellum") + ggplot2::ggtitle("Significant Associations", subtitle="PGC Schizophrenia")
@@ -83,10 +83,10 @@ scz2_multi_predixcan <- suppressMessages(readr::read_tsv("data/smt/smt_gwas_ccn_
   # Plot only those unsuspicious results
   scz2_multi_predixcan_ <- scz2_multi_predixcan %>% stissuexcan_remove_suspicious()
 
-  (qq_plot_mt_vs_all_univariate(scz2_multi_predixcan_, scz2_predixcan, "Brain_Cerebellum") +ggtitle("Significance QQ-Plot", subtitle="PGC Schizophrenia")) %>%
-    save_png(file.path(plots_dir, "PGC_scz2_qq.png"), 600, 600)
+  (qq_plot_mt_vs_all_univariate(scz2_multi_predixcan_, scz2_predixcan, "Brain_Cerebellum", "S-TissueXcan", "S-PrediXcan") +
+    ggtitle("Significance QQ-Plot", subtitle="PGC Schizophrenia")) %>% save_png(file.path(plots_dir, "PGC_scz2_qq.png"), 600, 600)
   
-  (significant_discoveries_bar_plot(scz2_multi_predixcan_, scz2_predixcan, "Brain_Cerebellum") + ggplot2::ggtitle("Number of significant genes", subtitle="PGC Schizophrenia")) %>%
-    save_png(file.path(plots_dir, "PGC_scz2_significant_bars.png"), 600, 600)
+  (significant_discoveries_bar_plot(scz2_multi_predixcan_, scz2_predixcan, "Brain_Cerebellum", "S-TissueXcan", "S-PrediXcan") + 
+      ggplot2::ggtitle("Number of significant genes", subtitle="PGC Schizophrenia")) %>% save_png(file.path(plots_dir, "PGC_scz2_significant_bars.png"), 600, 600)
 })()
 ```

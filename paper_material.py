@@ -35,34 +35,34 @@ def figure_1(args):
     # diagram is (341,972); plots are 600,600
     _1_size = (341, 972)
     _2_size = (470, 470)
-    _3_size = (455.0*470/571, 470)
+    _3_size = (math.ceil(455.0*470/571), 470)
     _size = (_1_size[0]+180+_2_size[0]*2, 980)
 
     dwg = svgwrite.Drawing(_p, size=_size)
     dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
 
     _c = (40,0) # conceptual cursor
-    dwg.add(dwg.image(os.path.join(args.input_folder_2, "S-Predixcan-MT-diagram.png"), _c, _1_size))
+    dwg.add(dwg.image(os.path.join(args.input_folder_2, "S-Predixcan-MT-diagram_2.png"), _c, _1_size))
     _kot(dwg, _c, "a", ox=-30, oy=30)
 
-    _c = _advance_cursor(_c, _1_size[0]+90,0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_qq.png"), _c, _2_size))
-    _kot(dwg, _c, "b", ox=-20, oy=30)
+    _c = _advance_cursor(_c, _1_size[0] + 90 + math.ceil((_2_size[0]-_3_size[0])/2.0), 0)
+    dwg.add(dwg.image(os.path.join(args.input_folder_2, "tissuexcan_illustration.png"), _c, _3_size))
+    _kot(dwg, (_1_size[0]+130, 0), "b", ox=-20, oy=30)
 
-    _c =_advance_cursor (_c, _2_size[0]+50, 0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_significant_bars.png"), _c, _2_size))
+    _c = (_1_size[0]+130+_2_size[0]+40, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "ukb_mt_vs_p_number_significant.png"), _c, _2_size))
     _kot(dwg, _c, "c", ox=-20, oy=30)
 
-    _c = (_1_size[0] + 130 + math.ceil((_2_size[0]-_3_size[0])/2.0), _2_size[1] + 40)
-    dwg.add(dwg.image(os.path.join(args.input_folder_2, "tissuexcan_illustration.png"), _c, _2_size))
+    _c = (_1_size[0] + 130, _2_size[1] + 40)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_qq.png"), _c, _2_size))
     _kot(dwg, _c, "d", ox=-20, oy=30)
 
     _c =_advance_cursor (_c, _2_size[0]+50, 0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "ukb_mt_vs_p_number_significant.png"), _c, _2_size))
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_significant_bars.png"), _c, _2_size))
     _kot(dwg, _c, "e", ox=-20, oy=30)
 
     dwg.save()
-    t = os.path.join(args.output_folder, "fig-multi-tissue-better-than-predixcan.png")
+    t = os.path.join(args.output_folder, "fig-multi-tissue-presentation.png")
     to_png(_p, t)
     os.remove(_p)
 
@@ -78,24 +78,24 @@ def figure_2(args):
     dwg = svgwrite.Drawing(_p, size=_size)
     dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
 
-    _c = (40,0) # conceptual cursor
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "PGC_scz2_qq.png"), _c, _1_size))
+    _c = (40+math.ceil(_1_size[0]-_2_size[0])/2.0, 0) # conceptual cursor
+    dwg.add(dwg.image(os.path.join(args.input_folder_2, "stissuexcan_illustration_2.png"), _c, _1_size))
     _kot(dwg, _c, "a", ox=-20, oy=30)
 
-    _c =_advance_cursor (_c, _1_size[1]+0, 0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "PGC_scz2_significant_bars.png"), _c, _1_size))
+    _c =_advance_cursor (_c, _2_size[0]+40, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "smt_only_vs_sp_only_number_significant.png"), _c, _1_size))
     _kot(dwg, _c, "b", ox=-20, oy=30)
 
-    _c = (40+math.ceil(_1_size[0]-_2_size[0])/2.0,_1_size[1]+40) # conceptual cursor
-    dwg.add(dwg.image(os.path.join(args.input_folder_2, "stissuexcan_illustration_2.png"), _c, _1_size))
+    _c = (40, _1_size[1]+40) # conceptual cursor
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "PGC_scz2_qq.png"), _c, _1_size))
     _kot(dwg, _c, "c", ox=-20, oy=30)
 
-    _c =_advance_cursor (_c, _1_size[0]+40, 0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "smt_only_vs_sp_only_number_significant.png"), _c, _1_size))
+    _c =_advance_cursor (_c, _1_size[1]+40, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "PGC_scz2_significant_bars.png"), _c, _1_size))
     _kot(dwg, _c, "d", ox=-20, oy=30)
 
     dwg.save()
-    t = os.path.join(args.output_folder, "fig-gwas-smt-vs-sp.png")
+    t = os.path.join(args.output_folder, "fig-s-multi-tissue-presentation.png")
     to_png(_p, t)
     os.remove(_p)
 
@@ -108,7 +108,7 @@ def shove(args):
     figures = [("ukb","smt_vs_mt_ukb.png",)]
     _shove(args.plots_folder, args.output_folder, figures, file_prefix="fig-")
 
-    supp_figures = [("ukb", "smt_vs_mt_ukb_supp.png",),]
+    supp_figures = [("ukb", "smt_vs_mt_ukb_supp.png",),("ukb", "proportion_underestimated_ukb.png",)]
     _shove(args.plots_folder, args.output_folder, supp_figures, "supp-fig-")
 
     supp_data =[("gwas_traits.txt",),

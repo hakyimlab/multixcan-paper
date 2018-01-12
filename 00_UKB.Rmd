@@ -1,6 +1,8 @@
 ---
-_title: '00_UKB'
-output: html_document
+_title: 00_UKB
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -119,4 +121,15 @@ p_save_delim(p_significant, file.path(results_dir, "ukb_p_significant.txt"))
 
 mt_significant <- analisis_results$mt_significant %>% inner_join(gencode, by="gene") %>% select(phenotype, gene, gene_name, pvalue, n_models, n_used, n_samples)
 p_save_delim(mt_significant, file.path(results_dir, "ukb_tissuexcan_significant.txt"))
+```
+
+```{r smt_conservative, echo=False, cache=TRUE}
+mt_vs_smt_summary <-  get_mt_vs_smt_summary_(names)
+(plot_conservative_fraction(mt_vs_smt_summary) + 
+    ggplot2::ggtitle("Underestimated Significant Associations", subtitle ="Traits in UK Biobank") +
+    ggplot2::xlab("Proportion of underestimated signals") +
+    ggplot2::ylab("#(traits)") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 3)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 3))) %>%
+  save_png(file.path(plots_dir, "proportion_underestimated_ukb.png"), 700, 700)
 ```
