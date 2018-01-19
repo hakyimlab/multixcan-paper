@@ -81,12 +81,12 @@ chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/U
 
 ```{r scatter_plots, echo=FALSE, cache=TRUE}
 (function(){
-  selected_ <- c("UKB_Trunk_fat_percentage", "UKB_Sleep_duration", "UKB_Asthma")
-  names_c_ <- names %>% dplyr::filter(name %in% selected_)
+  selected_ <- c("UKB_High_cholesterol", "UKB_Asthma", "UKB_Trunk_fat_percentage", "UKB_Sleep_duration")
+  names_c_ <- names %>% dplyr::filter(name %in% selected_) %>% mutate(name = factor(name, levels=selected_)) %>% arrange(name)
   
   (do_scatter_plot_mt_vs_smt (names_c_) + 
     ggtitle("S-CrossTissueXcan can infer individual-level CrossTissueXcan") + 
-    facet_wrap(~phenotype, scales="fixed")) %>% save_png(file.path(plots_dir, "smt_vs_mt_ukb.png"), height=400, width=900)
+    facet_wrap(~phenotype, scales="fixed", ncol=4)) %>% save_png(file.path(plots_dir, "smt_vs_mt_ukb.png"), height=400, width=1100)
   
   selected_mt_vs_smt <- function(names, selected, title, subtitle, path, columns=4) {
     selected <- gsub("UKB_", "",  selected)

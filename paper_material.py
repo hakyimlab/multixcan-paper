@@ -33,33 +33,20 @@ def figure_1(args):
     _p = "_fig1.svg"#os.path.join(args.output_folder, "fig1.svg")
 
     # diagram is (341,972); plots are 600,600
-    _1_size = (341, 972)
-    _2_size = (470, 470)
-    _3_size = (math.ceil(455.0*470/571), 470)
-    _size = (_1_size[0]+180+_2_size[0]*2, 980)
+    _1_size = (467, 986)
+    _2_size = (341, 972)
+    _size = (_1_size[0]+140+_2_size[0], _1_size[1])
 
     dwg = svgwrite.Drawing(_p, size=_size)
     dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
 
     _c = (40,0) # conceptual cursor
+    dwg.add(dwg.image(os.path.join(args.input_folder_2, "tissuexcan_illustration_2.png"), _c, _1_size))
+    _kot(dwg, _c, "a", ox=-20, oy=30)
+
+    _c = _advance_cursor(_c, _1_size[0] + 90 , 0)
     dwg.add(dwg.image(os.path.join(args.input_folder_2, "S-Predixcan-MT-diagram_2.png"), _c, _1_size))
-    _kot(dwg, _c, "a", ox=-30, oy=30)
-
-    _c = _advance_cursor(_c, _1_size[0] + 90 + math.ceil((_2_size[0]-_3_size[0])/2.0), 0)
-    dwg.add(dwg.image(os.path.join(args.input_folder_2, "tissuexcan_illustration.png"), _c, _3_size))
-    _kot(dwg, (_1_size[0]+130, 0), "b", ox=-20, oy=30)
-
-    _c = (_1_size[0]+130+_2_size[0]+40, 0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "ukb_mt_vs_p_number_significant.png"), _c, _2_size))
-    _kot(dwg, _c, "c", ox=-20, oy=30)
-
-    _c = (_1_size[0] + 130, _2_size[1] + 40)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_qq.png"), _c, _2_size))
-    _kot(dwg, _c, "d", ox=-20, oy=30)
-
-    _c =_advance_cursor (_c, _2_size[0]+50, 0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_significant_bars.png"), _c, _2_size))
-    _kot(dwg, _c, "e", ox=-20, oy=30)
+    _kot(dwg, _c, "b", ox=-20, oy=30)
 
     dwg.save()
     t = os.path.join(args.output_folder, "fig-multi-tissue-presentation.png")
@@ -69,6 +56,34 @@ def figure_1(args):
 
 def figure_2(args):
     _p = "_fig2.svg"#os.path.join(args.output_folder, "fig1.svg")
+
+    # diagram is (341,972); plots are 600,600
+    _1_size = (600, 600)
+    _size = (_1_size[0]*3+140, _1_size[1])
+
+    dwg = svgwrite.Drawing(_p, size=_size)
+    dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
+
+    _c = (20,0) # conceptual cursor
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_significant_bars.png"), _c, _1_size))
+    _kot(dwg, _c, "a", ox=0, oy=30)
+
+    _c = _advance_cursor(_c, _1_size[0] + 50, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_qq.png"), _c, _1_size))
+    _kot(dwg, _c, "b", ox=0, oy=30)
+
+    _c =_advance_cursor (_c, _1_size[0]+50, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "ukb_mt_vs_p_number_significant.png"), _c, _1_size))
+    _kot(dwg, _c, "c", ox=0, oy=30)
+
+
+    dwg.save()
+    t = os.path.join(args.output_folder, "fig-multi-tissue-ukb-cholesterol.png")
+    to_png(_p, t)
+    os.remove(_p)
+
+def figure_3(args):
+    _p = "_fig3.svg"#os.path.join(args.output_folder, "fig1.svg")
 
     # diagram is (341,972); plots are 600,600; illustration is 455,571
     _1_size = (600, 600)
@@ -128,6 +143,7 @@ def run(args):
     shove(args)
     figure_1(args)
     figure_2(args)
+    figure_3(args)
     #figure_4(args)
 
 if __name__ == "__main__":
