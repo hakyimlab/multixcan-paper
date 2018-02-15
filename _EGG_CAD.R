@@ -1,7 +1,7 @@
 library(dplyr)
 
 sps <- read.delim("results/gwas_sp_significant.txt")
-smts <- read.delim("results/gwas_summary_crosstissuexcan_significant.txt")
+smts <- read.delim("results/gwas_summary_smultixcan_significant.txt")
 
 egg_sp <- sps %>% filter(name == "Body Mass Index Standard Deviation Score") %>% arrange(pvalue)
 egg_sp_ <- egg_sp %>% group_by(gene_name) %>% top_n(n=-1, wt=pvalue)

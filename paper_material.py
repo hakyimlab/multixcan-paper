@@ -98,7 +98,7 @@ def figure_3(args):
     _kot(dwg, _c, "a", ox=-20, oy=30)
 
     _c =_advance_cursor (_c, _2_size[0]+40, 0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "smt_only_vs_sp_only_number_significant.png"), _c, _1_size))
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "gwas", "smt_vs_sp_number_significant.png"), _c, _1_size))
     _kot(dwg, _c, "b", ox=-20, oy=30)
 
     _c = (40, _1_size[1]+40) # conceptual cursor
@@ -127,12 +127,12 @@ def shove(args):
     _shove(args.plots_folder, args.output_folder, supp_figures, "supp-fig-")
 
     supp_data =[("gwas_traits.txt",),
-                ("gwas_stissuexcan_stats.txt",),
-                ("gwas_stissuexcan_significant.txt",),
+                ("gwas_smultixcan_stats.txt",),
+                ("gwas_smultixcan_significant.txt",),
                 ("gwas_sp_significant.txt",),
-                ("ukb_tissuexcan_stats.txt",),
+                ("ukb_multixcan_stats.txt",),
                 ("ukb_p_significant.txt",),
-                ("ukb_tissuexcan_significant.txt",)]
+                ("ukb_multixcan_significant.txt",)]
     _shove(args.input_folder, args.output_folder, supp_data, "supp-data-")
 
 ########################################################################################################################

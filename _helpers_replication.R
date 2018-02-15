@@ -1,8 +1,8 @@
-discovery_f_stissuexcan <- function(d) {
-  d  %>% stissuexcan_remove_suspicious() %>% dplyr::select(gene=gene, pvalue_d=pvalue, n_used_d=n_indep, n_models_d=n) %>% dplyr::filter(!is.na(pvalue_d)) 
+discovery_f_smultixcan <- function(d) {
+  d  %>% smultixcan_remove_suspicious() %>% dplyr::select(gene=gene, pvalue_d=pvalue, n_used_d=n_indep, n_models_d=n) %>% dplyr::filter(!is.na(pvalue_d)) 
 }
 
-replication_f_tissuexcan <- function(d) {
+replication_f_multixcan <- function(d) {
   d %>% dplyr::select(gene, pvalue_r=pvalue, n_used_r=n_used, n_models_r=n_models) %>% dplyr::filter(!is.na(pvalue_r))
 }
 
@@ -11,7 +11,7 @@ get_replication_spec_gwas_ukb <- function(replication_file, gwas_names, ukb_name
     dplyr::inner_join(gwas_names %>% dplyr::select(gwas=name, discovery_path=path), by="gwas") %>% 
     dplyr::inner_join(ukb_names %>% dplyr::select(ukb=mt_name, replication_path=mtp), by="ukb") %>%
     dplyr::rename(discovery=gwas, replication=ukb)
-  list(replication_table=replication, discovery_f=discovery_f_stissuexcan, replication_f=replication_f_tissuexcan)
+  list(replication_table=replication, discovery_f=discovery_f_smultixcan, replication_f=replication_f_multixcan)
 }
 
 ###############################################################################

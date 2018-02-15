@@ -27,7 +27,7 @@ get_bonferroni_significant_gene_count <- function(data) {
 }
 
 
-stissuexcan_remove_suspicious <- function(d) {
+smultixcan_remove_suspicious <- function(d) {
   d_ <- d %>% dplyr::filter(!is.na(pvalue))
   b_ <- 0.05/nrow(d_)
   d_ %>% dplyr::filter(!(pvalue < b_ & p_i_best>1e-4))

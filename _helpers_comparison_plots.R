@@ -1,6 +1,6 @@
 
 
-qq_plot_mt_vs_all_univariate <- function(mt_predixcan, predixcan, selected_model, t_method_name="TissueXcan", p_method_name="PrediXcan") {
+qq_plot_mt_vs_all_univariate <- function(mt_predixcan, predixcan, selected_model, t_method_name="MulTiXcan", p_method_name="PrediXcan") {
   label_s_ <- paste0(p_method_name," (", selected_model, ")")
   label_a_ <- paste0(p_method_name, " (all tissues)")
   
@@ -26,7 +26,7 @@ qq_plot_mt_vs_all_univariate <- function(mt_predixcan, predixcan, selected_model
 }
 
 
-significant_discoveries_bar_plot <- function(mt_predixcan, predixcan, selected_model, t_method_name="TissueXcan", p_method_name="PrediXcan") {
+significant_discoveries_bar_plot <- function(mt_predixcan, predixcan, selected_model, t_method_name="MulTiXcan", p_method_name="PrediXcan") {
   mt_ <- mt_predixcan %>% dplyr::filter(!is.na(pvalue))
   p_ <- predixcan %>% dplyr::filter(!is.na(pvalue))
   
@@ -55,6 +55,6 @@ do_scatter_plot_mt_vs_smt <- function(names) {
   mtm <- load_mt_results(names$mtp, names$name)
   smtm <- load_mt_results(names$smtp, names$name)
   scatter_plot_mt(mtm, smtm) + 
-    xlab(expression(bold('TissueXcan (-log'[10]*'(p-value))'))) +
-    ylab(expression(bold('S-TissueXcan (-log'[10]*'(p-value))')))
+    xlab(expression(bold('MulTiXcan (-log'[10]*'(p-value))'))) +
+    ylab(expression(bold('S-MulTiXcan (-log'[10]*'(p-value))')))
 }

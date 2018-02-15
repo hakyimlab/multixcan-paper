@@ -30,7 +30,7 @@ gencode <- read.delim("data/gencode.v19.flat.txt.gz")
 chol_p_ <- read_tsv("results/ukb_high_cholesterol_predixcan_significant.txt") %>% rename(model = tissue)
 chol_p <- chol_p_ %>% group_by(gene, gene_name) %>% summarise(n_significant_models=n()) %>% inner_join(chol_p_ %>% group_by(gene, gene_name)  %>% top_n(1,pvalue))
 
-chol_mtp <- read_tsv("results/ukb_high_cholesterol_multi_predixcan_significant.txt")
+chol_mtp <- read_tsv("results/ukb_high_cholesterol_multixcan_significant.txt")
 
 chol_p
 chol_mtp

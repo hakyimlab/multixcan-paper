@@ -22,7 +22,7 @@ suppressWarnings(source("_helpers_mt_analysis.R"))
 
 # Setup
 
-```{r folders, echo=FALSE, cache=TRUE}
+```{r folders, echo=FALSE}
 results_dir <- 'results'
 if(!dir.exists(results_dir)) dir.create(results_dir)
 
@@ -31,9 +31,10 @@ if(!dir.exists(plots_dir_)) dir.create(plots_dir_)
 
 plots_dir <- file.path(plots_dir_, "ukb")
 if(!dir.exists(plots_dir)) dir.create(plots_dir)
+```
 
+```{r preliminaries, echo=FALSE, cache=TRUE}
 gencode <- read.delim("data/gencode.v19.flat.txt.gz")
-
 names <- ukb_file_metadata_smt_mt("data/ukb/ukb_column_to_name.csv", "data/ukb/smt_ukb_ccn_30", "data/ukb/mt_ukb_cn30")
 ```
 
@@ -70,7 +71,7 @@ chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/U
     dplyr::select(gene, gene_name, pvalue) %>%
     dplyr::arrange(pvalue) %>%
     dplyr::filter(pvalue < 0.05/nrow(chol_multi_predixcan))
-  mtp %>%  p_save_delim(file.path(results_dir, "ukb_high_cholesterol_tissuexcan_significant.txt"))
+  mtp %>%  p_save_delim(file.path(results_dir, "ukb_high_cholesterol_multixcan_significant.txt"))
   
   #pg <- p$gene %>% unique()
   #mtpg <- mtp$gene %>% unique()
@@ -85,7 +86,7 @@ chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/U
   names_c_ <- names %>% dplyr::filter(name %in% selected_) %>% mutate(name = factor(name, levels=selected_)) %>% arrange(name)
   
   (do_scatter_plot_mt_vs_smt (names_c_) + 
-    ggtitle("S-CrossTissueXcan can infer individual-level CrossTissueXcan") + 
+    ggtitle("S-MulTiXcan can infer individual-level MulTiXcan") + 
     facet_wrap(~phenotype, scales="fixed", ncol=4)) %>% save_png(file.path(plots_dir, "smt_vs_mt_ukb.png"), height=400, width=1100)
   
   selected_mt_vs_smt <- function(names, selected, title, subtitle, path, columns=4) {
@@ -111,7 +112,7 @@ analisis_results <- get_mt_predixcan_analysis("data/ukb/mt_ukb_cn30", "data/ukb/
 
 ```{r mt_metaxcan_analysis_output, echo=FALSE, cache=TRUE}
 stats <- analisis_results$stats
-p_save_delim(stats, file.path(results_dir, "ukb_tissuexcan_stats.txt"))
+p_save_delim(stats, file.path(results_dir, "ukb_multixcan_stats.txt"))
 
 plot_n_significant_comparison_i(stats, threshold=800) %>% save_png( file.path(plots_dir, "ukb_mt_vs_p_number_significant.png"), height=800, width=800)
 plot_n_significant_only_comparison_i(stats, threshold=800) %>% save_png( file.path(plots_dir, "ukb_mt_only_vs_p_only_number_significant.png"), height=800, width=800)
@@ -120,10 +121,10 @@ p_significant <- analisis_results$p_significant %>% inner_join(gencode, by="gene
 p_save_delim(p_significant, file.path(results_dir, "ukb_p_significant.txt"))
 
 mt_significant <- analisis_results$mt_significant %>% inner_join(gencode, by="gene") %>% select(phenotype, gene, gene_name, pvalue, n_models, n_used, n_samples)
-p_save_delim(mt_significant, file.path(results_dir, "ukb_tissuexcan_significant.txt"))
+p_save_delim(mt_significant, file.path(results_dir, "ukb_multixcan_significant.txt"))
 ```
 
-```{r smt_conservative, echo=False, cache=TRUE}
+```{r smt_conservative, echo=FALSE, cache=TRUE}
 mt_vs_smt_summary <-  get_mt_vs_smt_summary_(names)
 (plot_conservative_fraction(mt_vs_smt_summary) + 
     ggplot2::ggtitle("Underestimated Significant Associations", subtitle ="Traits in UK Biobank") +
