@@ -41,7 +41,7 @@ def figure_1(args):
     dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
 
     _c = (40,0) # conceptual cursor
-    dwg.add(dwg.image(os.path.join(args.input_folder_2, "tissuexcan_illustration_2.png"), _c, _1_size))
+    dwg.add(dwg.image(os.path.join(args.input_folder_2, "multixcan_illustration.png"), _c, _1_size))
     _kot(dwg, _c, "a", ox=-20, oy=30)
 
     _c = _advance_cursor(_c, _1_size[0] + 90 , 0)
@@ -94,7 +94,7 @@ def figure_3(args):
     dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
 
     _c = (40+math.ceil(_1_size[0]-_2_size[0])/2.0, 0) # conceptual cursor
-    dwg.add(dwg.image(os.path.join(args.input_folder_2, "stissuexcan_illustration_2.png"), _c, _1_size))
+    dwg.add(dwg.image(os.path.join(args.input_folder_2, "smultixcan_illustration.png"), _c, _1_size))
     _kot(dwg, _c, "a", ox=-20, oy=30)
 
     _c =_advance_cursor (_c, _2_size[0]+40, 0)
