@@ -153,6 +153,7 @@ if __name__ == "__main__":
             self.plots_folder = "results/plots"
             self.input_folder = "results"
             self.input_folder_2 = "images"
+            self.input_folder_3 = "external_data"
 
     args = Dummy()
     run(args)

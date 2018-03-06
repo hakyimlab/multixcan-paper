@@ -8,6 +8,8 @@ knitr::opts_chunk$set(echo = TRUE)
 suppressWarnings(library(dplyr))
 suppressWarnings(library(ggplot2))
 suppressWarnings(library(readr))
+suppressWarnings(source("_helpers_misc.R"))
+suppressWarnings(library(xtable))
 ```
 
 # Preliminaries
@@ -52,6 +54,40 @@ chol_mtp %>% filter(gene_name %in% chol_shared_genes) %>% select(gene_name, pval
 ```
 
 ```{r CHOL_DIFFERENT_GENES, echo=FALSE, cache=TRUE}
-chol_p %>% filter(!(gene_name %in% chol_shared_genes))
-chol_mtp %>% filter(!(gene_name %in% chol_shared_genes)) %>% select(gene_name, pvalue)
+cpo <- chol_p %>% filter(!(gene_name %in% chol_shared_genes))
+cmtpo <- chol_mtp %>% filter(!(gene_name %in% chol_shared_genes)) 
+
+cpo %>% select(gene_name, model, pvalue)
+cmtpo %>% select(gene_name, pvalue)
+```
+
+
+```{r CHOL_GENE_LISTS, echo=FALSE, cache=TRUE}
+fuma_excluded <- readLines("data/fuma_excluded.txt")
+chol_genes <- cmtpo$gene %>% remove_id_from_ensemble()
+all_genes <- read.delim("data/ukb/mt_ukb_cn30/UKB_High_cholesterol_c20002_1536.txt") %>% .$gene %>% as.character() %>% remove_id_from_ensemble()
+all_other_genes <- all_genes[!(all_genes %in% cmtpo$gene)]
+all_other_genes <- all_other_genes[!(all_other_genes %in% fuma_excluded)]
+write(chol_genes , "results/ukb_cholesterol_genes.txt", sep="\n")
+write(chol_genes, "results/ukb_non_cholesterol_genes.txt", sep="\n")
+```
+
+# IMPC
+```{r impc, echo=FALSE, cache=TRUE}
+write(cmtpo$gene_name, "results/ukb_chol_mtonly.txt", sep="\n")
+```
+
+
+
+# FUMA
+
+Dropped out for now
+
+```{r fuma, echo=FALSE, cache=TRUE, eval=FALSE}
+fuma <- read.delim("data/fuma_bmi.txt")
+fuma_kegg <- fuma %>% filter(grepl("KEGG", Category)) %>% select(GeneSet, p, genes)
+p_save_delim(fuma_kegg, file.path(results_dir, "ukb_fuma_bmi.txt"))
+
+fuma_kegg %>% xtable() %>% 
+      print(type="latex", include.rownames=FALSE, file=paste0("results/spotlight_bmi.tex"))
 ```
