@@ -134,3 +134,4 @@ mt_vs_smt_summary <-  get_mt_vs_smt_summary_(names)
     scale_y_continuous(breaks = scales::pretty_breaks(n = 3))) %>%
   save_png(file.path(plots_dir, "proportion_underestimated_ukb.png"), 700, 700)
 ```
+

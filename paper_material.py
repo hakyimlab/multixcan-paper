@@ -135,6 +135,9 @@ def shove(args):
                 ("ukb_multixcan_significant.txt",)]
     _shove(args.input_folder, args.output_folder, supp_data, "supp-data-")
 
+    images = [("corrplot_pearson_SLC5A6.png",)]
+    _shove(args.input_folder_2, args.output_folder, images, "supp-fig-")
+
 ########################################################################################################################
 def run(args):
     if not os.path.exists(args.output_folder):
