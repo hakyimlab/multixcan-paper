@@ -7,9 +7,9 @@ textify <- function(text) {
   text
 }
 
-r_csv_ <- function(path) { suppressMessages(read_csv(path)) }
+r_csv_ <- function(path, col_types=NULL) { suppressMessages(read_csv(path, col_types=col_types)) }
 
-r_tsv_ <- function(path) { suppressMessages(read_tsv(path)) }
+r_tsv_ <- function(path, col_types=NULL) { suppressMessages(read_tsv(path, col_types=col_types)) }
 
 remove_id_from_ensemble <- function(v) {
   k <- gsub("\\.(.*)", "", v)

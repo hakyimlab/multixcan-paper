@@ -100,9 +100,13 @@ chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/U
                  "UKB_Hayfever_aka_allergic_rhinitis", "UKB_Asthma", "UKB_Age_asthma_diagnosed", "UKB_Eczema_aka_dermatitis",
                  "UKB_Fluid_intelligence_score", "UKB_Neuroticism_score", "UKB_Diabetes", "UKB_Age_diabetes_diagnosed")
   selected_mt_vs_smt(names, selected_, "UK Biobank", "Miscellaneous Traits", file.path(plots_dir, "smt_vs_mt_ukb_supp.png"))
+  
+  selected_2_ <- c("UKB_Duration_of_vigorous_activity", "UKB_Bread_intake", "UKB_Forced_vital_capacity_Best_measure",
+                 "UKB_Hayfever_aka_allergic_rhinitis", "UKB_Asthma", "UKB_Eczema_aka_dermatitis",
+                 "UKB_Neuroticism_score", "UKB_Diabetes", "UKB_Age_diabetes_diagnosed")
+  selected_mt_vs_smt(names, selected_2_, "UK Biobank", "Miscellaneous Traits", file.path(plots_dir, "smt_vs_mt_ukb_supp_2.png"), columns = 3)
 })()
 ```
-
 
 # MT-PrediXcan vs PrediXcan
 

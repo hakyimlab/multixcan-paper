@@ -1,0 +1,126 @@
+---
+title: "05_Simulations.Rmd"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressWarnings(library(dplyr))
+suppressWarnings(library(ggplot2))
+suppressWarnings(library(readr))
+suppressWarnings(source("_helpers_misc.R"))
+suppressWarnings(source("_helpers_simulations_processing.R"))
+suppressWarnings(source("_helpers_qq.R"))
+suppressWarnings(source("_helpers_plots.R"))
+```
+
+# Setup
+
+```{r folders, echo=FALSE}
+results_dir <- 'results'
+if(!dir.exists(results_dir)) dir.create(results_dir)
+
+plots_dir_ <- file.path(results_dir, "plots")
+if(!dir.exists(plots_dir_)) dir.create(plots_dir_)
+
+plots_dir <- file.path(plots_dir_, "simulations")
+if(!dir.exists(plots_dir)) dir.create(plots_dir)
+
+fp_ <- function(f) {file.path(plots_dir, f)}
+#Reproducibility
+set.seed(0)
+```
+
+```{r null_qq, echo=FALSE, cache=TRUE}
+null_30 <- "data/simulations/random__ccn30__mt_results.txt" %>% load_mt_("null", "null_cn30")
+(function(){
+  null_exp <- data.frame(pvalue = runif(nrow(null_30)))
+  p <- qq_compare_(null_exp,null_30) + 
+    ggtitle("QQ-Plot", "Significance for no effect on trait\n from predicted expression") +
+    xlab(expression(-log10(expected~pvalue))) +
+    ylab(expression(-log10(observed~pvalue))) +
+    coord_cartesian(xlim=c(0,4.5), ylim=c(0,4.5)) +
+    paper_plot_theme_a()
+  
+  p %>% save_png(fp_("null_30_qq.png"), 800, 800)
+})()
+```
+
+```{r null, echo=FALSE, cache=TRUE}
+(function(){
+  mt_30_ <- "data/simulations/random__ccn30__mt_results.txt" %>% load_d_("multixcan", "multixcan\ncondition\nnumber 30")
+  mt_0_ <- "data/simulations/random__ccn0__mt_results.txt" %>% load_d_("multixcan", "multixcan\ncondition\nnumber 0")
+  
+  d <- rbind(mt_30_, mt_0_) %>% mutate(y = -log10(pvalue))
+  b_ <- -log10(0.05/nrow(mt_30_))
+  
+  p <- the_box_plot_(d, b_) + xlab("Method") + ylab("Signifcance") + ggtitle("Null Hypothesis", subtitle="no effect of expression on trait")
+  p %>% save_png(fp_("null_bp.png"), 800, 800)
+})()
+```
+
+```{r single_tissue, echo=FALSE, cache=TRUE}
+(function(){
+  mt_30_ <- "data/simulations/single_tissue__ccn30_cc5__mt_results.txt" %>% load_d_("multixcan", "multixcan\ncondition\nnumber 30")
+  mt_0_ <- "data/simulations/single_tissue__ccn0_cc5__mt_results.txt" %>% load_d_("multixcan", "multixcan\ncondition\nnumber 0")
+  p_ <- "data/simulations/single_tissue__ccn30_cc5__p_results.txt" %>% load_d_("predixcan", "predixcan")
+  
+  d <- rbind(mt_30_, mt_0_, p_) %>% mutate(y = -log10(pvalue))
+  b_ <- -log10(0.05/nrow(mt_30_))
+  
+  p <- the_box_plot_(d, b_) + xlab("Method") + ylab("Signifcance") + ggtitle("Trait depending on single tissue", subtitle=expression(Trait==5%*%(Gaussian~Noise)+1%*%(Whole~Blood~Expression)))
+  p %>% save_png(fp_("single_tissue_bp.png"), 800, 800)
+})()
+```
+
+```{r combination_correlated, echo=FALSE, cache=TRUE}
+(function(){
+  mt_30_ <- "data/simulations/combination_from_correlated__ccn30_cc10_cs1_t0.9__mt_results.txt" %>% load_d_("multixcan", "multixcan\ncondition\nnumber 30")
+  mt_0_ <- "data/simulations/combination_from_correlated__ccn0_cc10_cs1_t0.9__mt_results.txt" %>% load_d_("multixcan", "multixcan\ncondition\nnumber 0")
+  mt_t_ <- "data/simulations/combination_from_correlated_truth__ccn30_cc10_cs1_t0.9__mt_results.txt" %>% load_d_("multixcan", "multixcan\nTrue Model") 
+  p_ <- "data/simulations/combination_from_correlated__ccn30_cc10_cs1_t0.9__p_results.txt" %>% load_d_("predixcan", "predixcan\nBest Tissue") %>% 
+    group_by(gene) %>% top_n(n=1, wt=pvalue) %>% data.frame
+  
+  d <- rbind(mt_30_, mt_0_, mt_t_, p_) %>% mutate(y = -log10(pvalue))
+  b_ <- -log10(0.05/nrow(mt_30_))
+  
+  #ggtitle("Trait depending on two correlated tissues", subtitle=expression(Trait==5%*%(Gaussian~Noise)+0.5%*%(Colon~Transverse)+0.5%*%(Prostrate)))
+  p <- the_box_plot_(d, b_) + xlab("Method") + ylab("Signifcance") + 
+    ggtitle("Trait depending on two correlated tissues", subtitle="Colon Transverse, Prostate")
+  p %>% save_png(fp_("correlated_tissues_bp.png"), 800, 800)
+})()
+```
+
+```{r combination_brain, echo=FALSE, cache=TRUE}
+(function(){
+  mt_30_ <- "data/simulations/combination_brain__ccn30_cc5__mt_results.txt" %>% load_d_("multixcan", "multixcan\ncondition\nnumber 30")
+  mt_0_ <- "data/simulations/combination_brain__ccn0_cc5__mt_results.txt" %>% load_d_("multixcan", "multixcan\ncondition\nnumber 0")
+  mt_t_ <- "data/simulations/combination_brain_truth__ccn30_cc5__mt_results.txt" %>% load_d_("multixcan", "multixcan\nTrue Model") 
+  p_ <- "data/simulations/combination_brain__ccn30_cc5__p_results.txt" %>% load_d_("predixcan", "predixcan\nBest Tissue") %>% 
+    group_by(gene) %>% top_n(n=1, wt=pvalue) %>% data.frame
+  
+  d <- rbind(mt_30_, mt_0_, mt_t_,  p_) %>% mutate(y = -log10(pvalue))
+  b_ <- -log10(0.05/nrow(mt_30_))
+  
+  p <- the_box_plot_(d, b_) + xlab("Method") + ylab("Signifcance") + 
+    ggtitle("Trait depending on Brain Tissues", subtitle= "Cerebellum, Cerebellar Hemisphere, Hippocampus,\nCortex, Frontal_Cortex_BA9")
+  p %>% save_png(fp_("combination_brain_bp.png"), 800, 800)
+})()
+```
+
+```{r combination_different, echo=FALSE, cache=TRUE}
+(function(){
+  mt_30_ <- "data/simulations/combination__ccn30_cc5__mt_results.txt" %>% load_d_("multixcan", "multixcan\ncondition\nnumber 30")
+  mt_0_ <- "data/simulations/combination__ccn0_cc5__mt_results.txt" %>% load_d_("multixcan", "multixcan\ncondition\nnumber 0")
+  mt_t_ <- "data/simulations/combination_truth__ccn30_cc5__mt_results.txt" %>% load_d_("multixcan", "multixcan\nTrue Model") 
+  p_ <- "data/simulations/combination__ccn30_cc5__p_results.txt" %>% load_d_("predixcan", "predixcan\nBest Tissue") %>% 
+    group_by(gene) %>% top_n(n=1, wt=pvalue) %>% data.frame
+  
+  d <- rbind(mt_30_, mt_0_, mt_t_,  p_) %>% mutate(y = -log10(pvalue))
+  b_ <- -log10(0.05/nrow(mt_30_))
+  
+  p <- the_box_plot_(d, b_) + xlab("Method") + ylab("Signifcance") + 
+    ggtitle("Trait depending on Different Tissues", subtitle = 'Brain Cerebellum, Colon Transverse, Whole Blood')
+  p %>% save_png(fp_("combination_different_bp.png"), 800, 800)
+})()
+```
