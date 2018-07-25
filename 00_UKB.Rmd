@@ -10,6 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 suppressWarnings(library(dplyr))
 suppressWarnings(library(ggplot2))
 suppressWarnings(library(readr))
+suppressWarnings(library(xtable))
+suppressWarnings(library(qvalue))
 suppressWarnings(source("_helpers_misc.R"))
 suppressWarnings(source("_helpers_results_files.R"))
 suppressWarnings(source("_helpers_file_logic.R"))
@@ -128,6 +130,23 @@ mt_significant <- analisis_results$mt_significant %>% inner_join(gencode, by="ge
 p_save_delim(mt_significant, file.path(results_dir, "ukb_multixcan_significant.txt"))
 ```
 
+
+With qvalues!
+
+```{r mt_analysis_q, echo=FALSE, cache=TRUE}
+analisis_results_q <- get_mt_predixcan_analysis("data/ukb/mt_ukb_cn30", "data/ukb/predixcan", verbose=TRUE, stats_f_=get_p_mt_stats_q_)
+```
+
+```{r mt_metaxcan_analysis_output, echo=FALSE, cache=TRUE}
+stats_q <- analisis_results_q$stats
+p_save_delim(stats_q, file.path(results_dir, "ukb_multixcan_stats_q.txt"))
+
+mt_significant_q <- analisis_results_q$mt_significant %>% inner_join(gencode, by="gene") %>% select(phenotype, gene, gene_name, pvalue, n_models, n_used, n_samples)
+p_save_delim(mt_significant_q, file.path(results_dir, "ukb_multixcan_significant_q.txt"))
+```
+
+
+
 ```{r smt_conservative, echo=FALSE, cache=TRUE}
 mt_vs_smt_summary <-  get_mt_vs_smt_summary_(names)
 (plot_conservative_fraction(mt_vs_smt_summary) + 
@@ -139,3 +158,22 @@ mt_vs_smt_summary <-  get_mt_vs_smt_summary_(names)
   save_png(file.path(plots_dir, "proportion_underestimated_ukb.png"), 700, 700)
 ```
 
+```{r multixcan_global_stats, echo=FALSE, cache=TRUE}
+(function(){
+  d <- mt_significant %>% filter(n_multixcan_significant > 0 | n_predixcan_significant > 0)
+  m_wins <- d %>% filter(n_multixcan_significant > n_predixcan_significant) %>% nrow()
+  p_wins <- d %>% filter(n_multixcan_significant < n_predixcan_significant) %>% nrow()
+  m_tie <- d %>% filter(n_multixcan_significant == n_predixcan_significant) %>% nrow() 
+  m_none <- mt_significant %>% filter(n_multixcan_significant ==0, n_predixcan_significant == 0) %>% nrow()
+  m_how_many <- d %>% mutate(h = n_multixcan_significant - n_predixcan_significant) %>% .$h %>% mean()
+  m_overlap <- d %>% filter(n_multixcan_significant > 0, n_predixcan_significant > 0) %>%mutate(nm = n_multixcan_significant - n_multixcan_only, np = n_predixcan_significant - n_predixcan_only) %>%
+    mutate(overlapi = pmin(nm,np), overlapa = pmin(n_multixcan_significant, n_predixcan_significant)) %>% mutate(of = overlapi*100.0/overlapa) %>% #mutate(of = pmin(of, 100)) %>% 
+    .$of %>% mean()
+  
+  r <- data.frame(field=c("MulTixcan wins", "Ties", "PrediXcan wins", "No detection", "MulTixcan Average Improvement", "Average overlap"),
+                  value=c(m_wins, m_tie, p_wins,  m_none,  m_how_many, m_overlap),
+    stringsAsFactors = FALSE)
+  
+  r %>% xtable(type = "latex") %>% print(file = file.path(results_dir, "ukb_summary.tex"))
+})()
+```

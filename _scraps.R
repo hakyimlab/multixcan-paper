@@ -1,26 +1,9 @@
-load_mt_ <- function(path, type, label) {
-  path %>% r_tsv_ %>% mutate(type = type, label = label)
-}
+library(dplyr)
+library(readr)
+library(ggplot2)
 
-load_d_ <- function(path, type, label) {
-  load_mt_(path, type, label) %>% select(gene, pvalue, label)
-}
-
-load_mt_logic_ <- function(comb_l) {
-  d <- data.frame()
-  for (i in 1:nrow(comb_l)) {
-    c_ <- comb_l[i,]
-    d_ <- c_$path %>% r_tsv_ 
-    d_ <- if ("n_used" %in% colnames(d_)) {
-      d_ <- d_ %>% select(gene, pvalue, n_used, n_models)  %>% mutate(cn = c_$cn) 
-    } else {
-      d_ <- d_ %>% select(gene, pvalue, n_models)  %>% mutate(cn = c_$cn, n_used = NA) 
-    }
-    #
-    d <- rbind(d, d_)
-  }
-  d
-}
+r_tsv_ <- function(path, col_types=NULL) { suppressMessages(read_tsv(path, col_types=col_types)) }
+r_csv_ <- function(path, col_types=NULL) { suppressMessages(read_csv(path, col_types=col_types)) }
 
 get_sim_mt_logic <- function(path, pattern, transform = NULL) {
   files <- sort(list.files(path))
@@ -66,12 +49,8 @@ qq_compare_ <- function(d1, d2) {
     geom_abline(slope=1, intercept=0)
 }
 
-the_box_plot_ <- function(d, yl=NULL) {
-  p <- ggplot(d, aes(x = label, y = y))
-  if(!is.null(yl)) {
-    p <- p + geom_hline(yintercept = yl)
-  }
-  p + paper_plot_theme_a() +
-    geom_boxplot(fill="gray") +
-    scale_fill_brewer(palette = "Accent")
+print_plot_ <- function(p, path, height, width) {
+  png(path, width=width, height=height)
+  print(p)
+  dev.off()
 }

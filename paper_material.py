@@ -114,6 +114,85 @@ def figure_3(args):
     to_png(_p, t)
     os.remove(_p)
 
+def figure_5(args):
+    _p = "_fig5.svg"#os.path.join(args.output_folder, "fig1.svg")
+
+    _1_size = (800, 800)
+    _size = (_1_size[0]*2+80, _1_size[1]+40)
+
+    dwg = svgwrite.Drawing(_p, size=_size)
+    dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
+
+    _c = (40, 0) # conceptual cursor
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "simulations", "null_30_qq.png"), _c, _1_size))
+    _kot(dwg, _c, "a", ox=-20, oy=30)
+
+    _c =_advance_cursor (_c, _1_size[0]+40, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "simulations", "null_bp.png"), _c, _1_size))
+    _kot(dwg, _c, "b", ox=-20, oy=30)
+
+    dwg.save()
+    t = os.path.join(args.output_folder, "supp-fig-simulations-null.png")
+    to_png(_p, t)
+    os.remove(_p)
+
+def figure_6_d(args):
+    _p = "_fig6.svg"  # os.path.join(args.output_folder, "fig1.svg")
+
+    _1_size = (800, 800)
+    _size = (_1_size[0] * 2 + 80, _1_size[1] *2 + 80)
+
+    dwg = svgwrite.Drawing(_p, size=_size)
+    dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
+
+    _c = (40.0, 40) # conceptual cursor
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "simulations", "single_tissue_bp.png"), _c, _1_size))
+    _kot(dwg, _c, "a", ox=-20, oy=30)
+
+    _c =_advance_cursor (_c, _1_size[0]+40, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "simulations", "correlated_tissues_bp.png"), _c, _1_size))
+    _kot(dwg, _c, "b", ox=-20, oy=30)
+
+    _c = (40, _1_size[1]*1+80)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "simulations", "combination_brain_bp.png"), _c, _1_size))
+    _kot(dwg, _c, "c", ox=-20, oy=30)
+
+    _c =_advance_cursor (_c, _1_size[0]+40, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "simulations", "combination_all_bp.png"), _c, _1_size))
+    _kot(dwg, _c, "d", ox=-20, oy=30)
+
+    dwg.save()
+    t = os.path.join(args.output_folder, "supp-fig-simulations-misc.png")
+    to_png(_p, t)
+    os.remove(_p)
+
+def figure_6(args):
+    _p = "_fig6.svg"  # os.path.join(args.output_folder, "fig1.svg")
+
+    _1_size = (800, 800)
+    _size = (_1_size[0] * 3 + 80, _1_size[1])
+
+    dwg = svgwrite.Drawing(_p, size=_size)
+    dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
+
+    _c = (40.0, 0) # conceptual cursor
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "simulations", "single_tissue_bp.png"), _c, _1_size))
+    _kot(dwg, _c, "a", ox=-20, oy=30)
+
+    _c = _advance_cursor(_c, _1_size[0] + 40, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "simulations", "combination_brain_bp.png"), _c, _1_size))
+    _kot(dwg, _c, "b", ox=-20, oy=30)
+
+    _c =_advance_cursor (_c, _1_size[0]+40, 0)
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "simulations", "combination_all_bp.png"), _c, _1_size))
+    _kot(dwg, _c, "c", ox=-20, oy=30)
+
+    dwg.save()
+    t = os.path.join(args.output_folder, "supp-fig-simulations-misc.png")
+    to_png(_p, t)
+    os.remove(_p)
+
+
 def shove(args):
     def _shove(input_folder, output_folder, files, file_prefix=""):
         for sf in files:
@@ -123,7 +202,10 @@ def shove(args):
     figures = [("ukb","smt_vs_mt_ukb.png",)]
     _shove(args.plots_folder, args.output_folder, figures, file_prefix="fig-")
 
-    supp_figures = [("ukb", "smt_vs_mt_ukb_supp.png",),("ukb", "proportion_underestimated_ukb.png",)]
+    supp_figures = [("ukb", "smt_vs_mt_ukb_supp.png",),
+                    ("ukb", "proportion_underestimated_ukb.png",),
+                    ("simulations", "combination_all_tendency.png",),
+                    ("simulations", "pc.png")]
     _shove(args.plots_folder, args.output_folder, supp_figures, "supp-fig-")
 
     supp_data =[("gwas_traits.txt",),
@@ -148,6 +230,9 @@ def run(args):
     figure_2(args)
     figure_3(args)
     #figure_4(args)
+    figure_5(args)
+    figure_6(args)
+
 
 if __name__ == "__main__":
     class Dummy(object):
