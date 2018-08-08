@@ -75,7 +75,7 @@ get_mt_metaxcan_analysis <- function(metaxcan_data_folder, smt_folder, verbose=F
     l_ <- file_logic[i,]
     if(verbose) { message(paste0("Processing ", l_$name)) }
     m_ <- suppressWarnings( r_tsv_(l_$m_p) %>% dplyr::mutate(phenotype = l_$name) )
-    smt_ <- suppresswarnings( r_tsv_(l_$smt_p) %>% dplyr::mutate(phenotype = l_$name) )
+    smt_ <- suppressWarnings( r_tsv_(l_$smt_p) %>% dplyr::mutate(phenotype = l_$name) )
     
     stats <- rbind(stats, stats_f_(m_, smt_))
     sp_significant <- rbind(sp_significant, spredixcan_significant_m(m_))
@@ -146,6 +146,26 @@ get_mt_predixcan_analysis <- function(mt_folder, predixcan_folder, verbose=FALSE
   }
   
   list(stats=stats, p_significant=p_significant, mt_significant=mt_significant)
+}
+
+get_mt_individual_suspicious <- function(mt_folder_0, mt_folder_30, verbose=FALSE) {
+  mt_file_logic_0 <- get_mt_files_d_(mt_folder_0)
+  mt_file_logic_30 <- get_mt_files_d_(mt_folder_30)
+  
+  stats <- data.frame()
+  for (name_ in mt_file_logic_30$mt_name) {
+    if(verbose) { message(paste0("Processing ", name_)) }
+    mt_0 <- suppressWarnings(mt_file_logic_0 %>% dplyr::filter(mt_name == name_) %>% .$mtp %>% r_tsv_() %>% dplyr::mutate(phenotype = name_))
+    mt_30 <- suppressWarnings(mt_file_logic_30 %>% dplyr::filter(mt_name == name_) %>% .$mtp %>% r_tsv_() %>% dplyr::mutate(phenotype = name_))
+    d <- mt_0 %>% rename(pvalue_30 = pvalue) %>% select(gene, p_i_best, pvalue_30) %>% inner_join(mt_30 %>% select(gene, pvalue), by= "gene")
+
+    b <- 0.05/nrow(d %>% filter(!is.na(pvalue)))
+    su_ <- d %>% filter(pvalue < b, p_i_best > 1e-4) %>% nrow()
+    si_ <- d %>% filter(pvalue < b) %>% nrow()
+    stats <- rbind(stats, data.frame(trait=name_, n_flagged=su_, n_significant=si_, stringsAsFactors = FALSE))
+  }
+  
+  return(stats)
 }
 
 ###############################################################################

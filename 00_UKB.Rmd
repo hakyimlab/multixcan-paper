@@ -12,6 +12,7 @@ suppressWarnings(library(ggplot2))
 suppressWarnings(library(readr))
 suppressWarnings(library(xtable))
 suppressWarnings(library(qvalue))
+suppressWarnings(library(ggcorrplot))
 suppressWarnings(source("_helpers_misc.R"))
 suppressWarnings(source("_helpers_results_files.R"))
 suppressWarnings(source("_helpers_file_logic.R"))
@@ -20,6 +21,7 @@ suppressWarnings(source("_helpers_qq.R"))
 suppressWarnings(source("_helpers_scatter.R"))
 suppressWarnings(source("_helpers_comparison_plots.R"))
 suppressWarnings(source("_helpers_mt_analysis.R"))
+suppressWarnings(source("_helpers_simulations_processing.R"))
 ```
 
 # Setup
@@ -59,6 +61,35 @@ chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/U
 })()
 ```
 
+```{r ukb_cholesterol_plot_supp, echo=FALSE, cache=TRUE}
+(function(){
+  y1 <- c(
+    get_fdr_significant_gene_count_(chol_predixcan %>% filter(tissue == "Whole_Blood"), 0.05),
+    get_fdr_significant_gene_count_(chol_predixcan, 0.05),
+    get_fdr_significant_gene_count_(chol_multi_predixcan, 0.05)
+  )
+  label1 <- rep("FDR<0.05", length(y1))
+  y2 <- c(
+    get_fdr_significant_gene_count_(chol_predixcan %>% filter(tissue == "Whole_Blood"), 0.01),
+    get_fdr_significant_gene_count_(chol_predixcan, 0.01),
+    get_fdr_significant_gene_count_(chol_multi_predixcan, 0.01)
+  )
+  label2 <- rep("FDR<0.01", length(y2))
+  y3 <- c(
+    get_fdr_significant_gene_count_(chol_predixcan %>% filter(tissue == "Whole_Blood"), 1e-4),
+    get_fdr_significant_gene_count_(chol_predixcan, 1e-4),
+    get_fdr_significant_gene_count_(chol_multi_predixcan, 1e-4)
+  )
+  label3 <- rep("FDR<1e-4", length(y3))
+  y <- c(y1,y2,y3)
+  label <- factor(c(label1, label2, label3), levels=c("FDR<0.05", "FDR<0.01","FDR<1e-4"))
+  (significant_discoveries_bar_plot_(y, "Whole_Blood", label=label) + 
+     ggplot2::ggtitle("Number of significant genes", subtitle="Cholesterol in UK Biobank") +
+     ggplot2::facet_wrap(~label, ncol=3, scales="free"))  %>%
+    save_png(file.path(plots_dir, "UKB_Cholesterol_significant_bars_fdr.png"), 500, 1500)
+})()
+```
+
 ```{r cholesterol_tables, echo=FALSE, cache=TRUE}
 (function() {
   p <- chol_predixcan %>% 
@@ -88,7 +119,7 @@ chol_multi_predixcan <- suppressMessages(readr::read_tsv("data/ukb/mt_ukb_cn30/U
   names_c_ <- names %>% dplyr::filter(name %in% selected_) %>% mutate(name = factor(name, levels=selected_)) %>% arrange(name)
   
   (do_scatter_plot_mt_vs_smt (names_c_) + 
-    ggtitle("S-MulTiXcan can infer individual-level MulTiXcan") + 
+    ggtitle("S-MultiXcan can infer individual-level MultiXcan") + 
     facet_wrap(~phenotype, scales="fixed", ncol=4)) %>% save_png(file.path(plots_dir, "smt_vs_mt_ukb.png"), height=400, width=1100)
   
   selected_mt_vs_smt <- function(names, selected, title, subtitle, path, columns=4) {
@@ -137,7 +168,7 @@ With qvalues!
 analisis_results_q <- get_mt_predixcan_analysis("data/ukb/mt_ukb_cn30", "data/ukb/predixcan", verbose=TRUE, stats_f_=get_p_mt_stats_q_)
 ```
 
-```{r mt_metaxcan_analysis_output, echo=FALSE, cache=TRUE}
+```{r mt_metaxcan_analysis_output_q, echo=FALSE, cache=TRUE}
 stats_q <- analisis_results_q$stats
 p_save_delim(stats_q, file.path(results_dir, "ukb_multixcan_stats_q.txt"))
 
@@ -145,7 +176,10 @@ mt_significant_q <- analisis_results_q$mt_significant %>% inner_join(gencode, by
 p_save_delim(mt_significant_q, file.path(results_dir, "ukb_multixcan_significant_q.txt"))
 ```
 
-
+```{r, mt_individual_suspicious}
+mt_individual_suspicious <- get_mt_individual_suspicious ("data/ukb/mt_ukb_cn0", "data/ukb/mt_ukb_cn30",) %>% arrange(-n_flagged) %>% mutate(percent=n_flagged*100/n_significant)
+p_save_delim(mt_individual_suspicious, file.path(results_dir, "ukb_individual_flagged.txt"))
+```
 
 ```{r smt_conservative, echo=FALSE, cache=TRUE}
 mt_vs_smt_summary <-  get_mt_vs_smt_summary_(names)
@@ -158,22 +192,51 @@ mt_vs_smt_summary <-  get_mt_vs_smt_summary_(names)
   save_png(file.path(plots_dir, "proportion_underestimated_ukb.png"), 700, 700)
 ```
 
+
+
 ```{r multixcan_global_stats, echo=FALSE, cache=TRUE}
 (function(){
-  d <- mt_significant %>% filter(n_multixcan_significant > 0 | n_predixcan_significant > 0)
+  d <- stats %>% filter(n_multixcan_significant > 0 | n_predixcan_significant > 0)
   m_wins <- d %>% filter(n_multixcan_significant > n_predixcan_significant) %>% nrow()
   p_wins <- d %>% filter(n_multixcan_significant < n_predixcan_significant) %>% nrow()
-  m_tie <- d %>% filter(n_multixcan_significant == n_predixcan_significant) %>% nrow() 
-  m_none <- mt_significant %>% filter(n_multixcan_significant ==0, n_predixcan_significant == 0) %>% nrow()
-  m_how_many <- d %>% mutate(h = n_multixcan_significant - n_predixcan_significant) %>% .$h %>% mean()
+  m_tie <- d %>% filter(n_multixcan_significant == n_predixcan_significant) %>% nrow()
+  m_none <- stats %>% filter(n_multixcan_significant ==0, n_predixcan_significant == 0) %>% nrow()
+  m_how_many <- d %>% mutate(h = n_multixcan_significant - n_predixcan_significant) %>% .$h %>% median()
   m_overlap <- d %>% filter(n_multixcan_significant > 0, n_predixcan_significant > 0) %>%mutate(nm = n_multixcan_significant - n_multixcan_only, np = n_predixcan_significant - n_predixcan_only) %>%
-    mutate(overlapi = pmin(nm,np), overlapa = pmin(n_multixcan_significant, n_predixcan_significant)) %>% mutate(of = overlapi*100.0/overlapa) %>% #mutate(of = pmin(of, 100)) %>% 
-    .$of %>% mean()
-  
-  r <- data.frame(field=c("MulTixcan wins", "Ties", "PrediXcan wins", "No detection", "MulTixcan Average Improvement", "Average overlap"),
+    mutate(overlapi = pmin(nm,np), overlapa = pmin(n_multixcan_significant, n_predixcan_significant)) %>% mutate(of = overlapi*100.0/overlapa) %>% #mutate(of = pmin(of, 100)) %>%
+    .$of %>% median()
+
+  r <- data.frame(field=c("MulTixcan wins", "Ties", "PrediXcan wins", "No detection", "MulTixcan Median Improvement", "Median overlap"),
                   value=c(m_wins, m_tie, p_wins,  m_none,  m_how_many, m_overlap),
     stringsAsFactors = FALSE)
-  
+
   r %>% xtable(type = "latex") %>% print(file = file.path(results_dir, "ukb_summary.tex"))
+})()
+```
+
+```{r height_tendency, echo=FALSE, cache=TRUE}
+(function(){
+  mt_30_ <- "data/additional/ukb_height/ukb_height__ccn_30.txt.gz" %>% load_mt_("multixcan", "condition number 30") %>% select(gene, pvalue, label, n_models)
+  mt_0_ <- "data/additional/ukb_height/ukb_height__ccn_0.txt.gz" %>% load_mt_("multixcan", "None") %>% select(gene, pvalue, label, n_models)
+
+  d <- rbind(mt_30_, mt_0_) %>% mutate(s = -log10(pvalue))
+
+  p <- ggplot(d) + geom_smooth(aes(x=n_models, y=s, color=label)) +
+    paper_plot_theme_a() + xlab("Number of  components used") + ylab(expression(Significance~(-log10(pvalue)))) +
+    ggtitle("Effect of PCA Regularization", subtitle="Height") + 
+    guides(color=guide_legend(title="Regularization"))
+  p %>% save_png(file.path(plots_dir, "ukb_height_pve_tendency_2.png"), 800, 800)
+})()
+```
+
+
+```{r correlation, echo=FALSE, cache=TRUE}
+(function(){
+  d <- read.delim("data/correlation/correlation_median.txt.gz")
+  d[is.na(d)] <- 0
+  rownames(d) <- colnames(d)
+  p <- ggcorrplot(d, hc.order =TRUE, outline.col="white", type="lower", colors = c("#6D9EC1", "white", "#E46726")) +
+    ggtitle("Median Predicted Expression Correlation", subtitle="UK Biobank")
+  p %>% save_png(file.path(plots_dir, "ukb_correlation.png"), 800, 800) 
 })()
 ```

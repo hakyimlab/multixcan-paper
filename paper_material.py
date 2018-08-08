@@ -204,8 +204,10 @@ def shove(args):
 
     supp_figures = [("ukb", "smt_vs_mt_ukb_supp.png",),
                     ("ukb", "proportion_underestimated_ukb.png",),
+                    ("ukb", "UKB_Cholesterol_significant_bars_fdr.png",),
                     ("simulations", "combination_all_tendency.png",),
-                    ("simulations", "pc.png")]
+                    ("simulations", "pc.png"),
+                    ("wtccc", "t1d_snp_intersection.png")]
     _shove(args.plots_folder, args.output_folder, supp_figures, "supp-fig-")
 
     supp_data =[("gwas_traits.txt",),
@@ -214,7 +216,9 @@ def shove(args):
                 ("gwas_sp_significant.txt",),
                 ("ukb_multixcan_stats.txt",),
                 ("ukb_p_significant.txt",),
-                ("ukb_multixcan_significant.txt",)]
+                ("ukb_multixcan_significant.txt",),
+                ("ukb_individual_flagged.txt",),
+                ("wtccc_t1d.txt",)]
     _shove(args.input_folder, args.output_folder, supp_data, "supp-data-")
 
     images = [("corrplot_pearson_SLC5A6.png",)]

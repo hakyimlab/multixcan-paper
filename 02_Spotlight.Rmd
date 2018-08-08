@@ -38,7 +38,7 @@ egg_sp_top_genes %>% arrange(pvalue) %>% select(gene_name, model, pvalue)
 
 ```{r EGG_SMT, echo=FALSE, cache=TRUE}
 egg_smt <- smts %>% filter(tag=="EGG_BMI_HapMapImputed") %>% arrange(pvalue)
-message("EGG MulTiXcan")
+message("EGG MultiXcan")
 egg_smt %>% select(gene_name, suspicious, pvalue)
 ```
 
@@ -71,7 +71,7 @@ cad_sp_top_genes %>% arrange(pvalue) %>% select(gene_name, model, pvalue)
 
 ```{r CAD_SMT, echo=FALSE, cache=TRUE}
 cad_smt <- smts %>% filter(tag=="CARDIoGRAM_C4D_CAD_ADDITIVE") %>% arrange(pvalue)
-message("CAD MulTiXcan")
+message("CAD MultiXcan")
 cad_smt %>% arrange(-suspicious) %>% select(gene_name, suspicious, pvalue)
 cad_smt %>% filter(suspicious == FALSE)  %>% select(gene_name, pvalue)
 ```

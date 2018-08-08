@@ -26,6 +26,21 @@ get_bonferroni_significant_gene_count <- function(data) {
   data %>% filter(pvalue < 0.05/nrow(data)) %>% .$gene %>% unique() %>% length()
 }
 
+get_fdr_significant_gene_count_ <- function(data, fdr) {
+  q <- tryCatch({
+    qvalue(p = data$pvalue)$qvalues
+  }, warning = function(w) {
+    NA
+  }, error = function(e) {
+    NA
+  })
+  #q <- p.adjust(data$pvalue, method="BH")
+  data %>% mutate(qvalue = q) %>% filter(qvalue < fdr) %>% .$gene %>% unique() %>% length()
+}
+
+get_fdr_significant_gene_count <- function(data) {
+  get_fdr_significant_gene_count_(data, fdr)
+}
 
 smultixcan_remove_suspicious <- function(d) {
   d_ <- d %>% dplyr::filter(!is.na(pvalue))

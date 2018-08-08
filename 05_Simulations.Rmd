@@ -178,31 +178,38 @@ null_30 <- "data/simulations/random__ccn30__mt_results.txt" %>% load_mt_("null",
 
 ```{r combination_all_tendency, echo=FALSE, cache=TRUE}
 (function(){
-  mt_30_ <- "data/simulations/combination_all_1kr__ccn30_cc5__mt_results.txt" %>% load_mt_("multixcan", "condition number 30") %>% select(gene, pvalue, label, n_models)
-  mt_0_ <- "data/simulations/combination_all_1kr__ccn0_cc5__mt_results.txt" %>% load_mt_("multixcan", "None") %>% select(gene, pvalue, label, n_models)
+  mt_30_ <- "data/simulations/combination_all_1kr__ccn30_cc5__mt_results.txt" %>% load_mt_("multixcan", "condition number 30") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "All tissues as causal")
+  mt_0_ <- "data/simulations/combination_all_1kr__ccn0_cc5__mt_results.txt" %>% load_mt_("multixcan", "None") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "All tissues as causal")
 
-  d <- rbind(mt_30_, mt_0_) %>% mutate(s = -log10(pvalue))
+  mtb_30_ <- "data/simulations/combination_brain__ccn30_cc5__mt_results.txt" %>% load_mt_("multixcan", "condition number 30") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "5 Brain Tissues as causal")
+  mtb_0_ <- "data/simulations/combination_brain__ccn0_cc5__mt_results.txt" %>% load_mt_("multixcan", "None") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "5 Brain Tissues as causal")
+  
+  d <- rbind(mt_30_, mt_0_, mtb_30_, mtb_0_) %>% mutate(s = -log10(pvalue))
 
   p <- ggplot(d) + geom_smooth(aes(x=n_models, y=s, color=label)) +
-    paper_plot_theme_a() + xlab("Number of tissues") + ylab(expression(Significance~(-log10(pvalue)))) +
-    ggtitle("Effect of PCA Regularization", subtitle="Simulated traits using\n all available tissues for every gene") + 
-    guides(color=guide_legend(title="Regularization"))
-  p %>% save_png(fp_("combination_all_tendency.png"), 800, 800)
+    paper_plot_theme_a() + xlab("Number of available tissues per gene") + ylab(expression(Significance~(-log10(pvalue)))) +
+    ggtitle("Significance Trend") + 
+    guides(color=guide_legend(title="Regularization")) +
+    facet_wrap(~facet, ncol=1, scales="free")
+  p %>% save_png(fp_("combination_all_tendency.png"), 800, 600)
 })()
 ```
 
 ```{r pc, echo=FALSE, cache=TRUE}
 (function(){
   comb_l <- get_sim_mt_logic("data/simulations", "combination_brain_pce__(.*)__mt_results.txt", extract_2_)
-  d1 <- load_mt_logic_(comb_l) %>% mutate(label = factor(cn), y = -log10(pvalue), the_facet="5 Brain tissues as causal")
+  d1 <- load_mt_logic_(comb_l) %>%  mutate(label = factor(cn), y = -log10(pvalue), the_facet="5 Brain tissues as causal")
 
   comb_l <- get_sim_mt_logic("data/simulations", "combination_all_1kr_pce__(.*)__mt_results.txt", extract_2_)
   d2 <- load_mt_logic_(comb_l) %>% mutate(label = factor(cn), y = -log10(pvalue), the_facet="All available tissues as causal")
   
-  d <- rbind(d1, d2)
+  #comb_l <- get_sim_mt_logic("data/additional/ukb_height", "ukb_height__(.*).txt.gz", extract_3_)
+  #d3 <- load_mt_logic_(comb_l) %>% mutate(label = factor(cn), y = -log10(pvalue), the_facet="Height")
+   
+  d <- rbind(d1, d2)#, d3)
   d$label <- factor(d$label, levels=seq(0,100,10), labels=c("No\nregularization", seq(10,100,10)))
   p <- the_box_plot_(d) + xlab("Condition number") + ylab(expression(Significance~(-log10(pvalue)))) + 
-    ggtitle("Significance") + facet_wrap(~the_facet, ncol=1, scales="free")
-  p %>% save_png(fp_("pc.png"), 800, 800)
+    ggtitle("Significance", subtitle="Different regularization thresholds") + facet_wrap(~the_facet, ncol=1, scales="free")
+  p %>% save_png(fp_("pc.png"), 800, 600)
 })()
 ```

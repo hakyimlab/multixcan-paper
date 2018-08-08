@@ -48,6 +48,11 @@ extract_2_ <- function(d) {
     mutate(cc = gsub("ccn(.*)_cc(.*)", "\\2", run) %>% as.numeric)
 }
 
+extract_3_ <- function(d) {
+  d %>% mutate(cn = gsub("ccn_(.*)", "\\1", run) %>% as.integer)
+}
+
+
 choose_ <- function(d, cn_, cc_, cs_, t_) {
   d %>% filter(cn == cn_, cc == cc_, cs == cs_, t == t_) %>% .$path %>% r_tsv_
 }
