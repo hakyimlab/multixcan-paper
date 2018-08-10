@@ -38,8 +38,9 @@ egg_sp_top_genes %>% arrange(pvalue) %>% select(gene_name, model, pvalue)
 
 ```{r EGG_SMT, echo=FALSE, cache=TRUE}
 egg_smt <- smts %>% filter(tag=="EGG_BMI_HapMapImputed") %>% arrange(pvalue)
+print(head(egg_smt))
 message("EGG MultiXcan")
-egg_smt %>% select(gene_name, suspicious, pvalue)
+egg_smt %>% select(gene_name, pvalue)
 ```
 
 
@@ -54,11 +55,11 @@ egg_smt_only_genes <- egg_smt_genes[!(egg_smt_genes %in% egg_sp_genes)]
 
 ```{r EGG_SHARED_GENES, echo=FALSE, cache=TRUE}
 egg_sp_top_genes %>% filter(gene_name %in% egg_shared_genes) %>% select(gene_name, model, pvalue)
-egg_smt %>% filter(gene_name %in% egg_shared_genes) %>% select(gene_name, suspicious, pvalue)
+egg_smt %>% filter(gene_name %in% egg_shared_genes) %>% select(gene_name, pvalue)
 ```
 ```{r EGG_DIFFERENT_GENES, echo=FALSE, cache=TRUE}
 egg_sp_top_genes %>% filter(!(gene_name %in% egg_shared_genes)) %>% select(gene_name, model, pvalue)
-egg_smt %>% filter(!(gene_name %in% egg_shared_genes)) %>% select(gene_name, suspicious, pvalue)
+egg_smt %>% filter(!(gene_name %in% egg_shared_genes)) %>% select(gene_name, pvalue)
 ```
 
 # CAD
@@ -72,8 +73,8 @@ cad_sp_top_genes %>% arrange(pvalue) %>% select(gene_name, model, pvalue)
 ```{r CAD_SMT, echo=FALSE, cache=TRUE}
 cad_smt <- smts %>% filter(tag=="CARDIoGRAM_C4D_CAD_ADDITIVE") %>% arrange(pvalue)
 message("CAD MultiXcan")
-cad_smt %>% arrange(-suspicious) %>% select(gene_name, suspicious, pvalue)
-cad_smt %>% filter(suspicious == FALSE)  %>% select(gene_name, pvalue)
+cad_smt %>% arrange(-suspicious) %>% select(gene_name, pvalue)
+cad_smt   %>% select(gene_name, pvalue)
 ```
 
 ```{r CAD_GENES, echo=FALSE, cache=TRUE}
@@ -91,14 +92,14 @@ cad_smt_only_genes
 
 ```{r CAD_SHARED_GENES, echo=FALSE, cache=TRUE}
 cad_sp_top_genes %>% filter(gene_name %in% cad_shared_genes) %>% select(gene_name, model, pvalue)
-cad_smt %>% filter(gene_name %in% cad_shared_genes) %>% arrange(-suspicious) %>% select(gene_name, suspicious, pvalue)
-cad_smt %>% filter(gene_name %in% cad_shared_genes, suspicious==FALSE) %>% select(gene_name, pvalue)
+cad_smt %>% filter(gene_name %in% cad_shared_genes) %>% arrange(-suspicious) %>% select(gene_name, pvalue)
+cad_smt %>% filter(gene_name %in% cad_shared_genes==FALSE) %>% select(gene_name, pvalue)
 ```
 
 ```{r CAD_DIFFERENT_GENES, echo=FALSE, cache=TRUE}
 cad_sp_top_genes %>% filter(!(gene_name %in% cad_shared_genes)) %>% select(gene_name, model, pvalue)
-cad_smt %>% filter(!(gene_name %in% cad_shared_genes)) %>% arrange(-suspicious) %>% select(gene_name, suspicious, pvalue)
-cad_smt %>% filter(!(gene_name %in% cad_shared_genes), suspicious==FALSE) %>% select(gene_name, pvalue)
+cad_smt %>% filter(!(gene_name %in% cad_shared_genes)) %>% arrange(-suspicious) %>% select(gene_name, pvalue)
+cad_smt %>% filter(!(gene_name %in% cad_shared_genes)==FALSE) %>% select(gene_name, pvalue)
 ```
 
 

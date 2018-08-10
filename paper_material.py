@@ -65,15 +65,15 @@ def figure_2(args):
     dwg.add(dwg.rect(insert=(0, 0), size=_size, fill="rgb(255,255,255)"))
 
     _c = (20,0) # conceptual cursor
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_significant_bars.png"), _c, _1_size))
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "ukb_mt_vs_p_number_significant.png"), _c, _1_size))
     _kot(dwg, _c, "a", ox=0, oy=30)
 
     _c = _advance_cursor(_c, _1_size[0] + 50, 0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_qq.png"), _c, _1_size))
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_significant_bars.png"), _c, _1_size))
     _kot(dwg, _c, "b", ox=0, oy=30)
 
     _c =_advance_cursor (_c, _1_size[0]+50, 0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "ukb_mt_vs_p_number_significant.png"), _c, _1_size))
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "ukb", "UKB_Cholesterol_qq.png"), _c, _1_size))
     _kot(dwg, _c, "c", ox=0, oy=30)
 
 
@@ -128,7 +128,7 @@ def figure_5(args):
     _kot(dwg, _c, "a", ox=-20, oy=30)
 
     _c =_advance_cursor (_c, _1_size[0]+40, 0)
-    dwg.add(dwg.image(os.path.join(args.plots_folder, "simulations", "null_bp.png"), _c, _1_size))
+    dwg.add(dwg.image(os.path.join(args.plots_folder, "simulations", "null_0_qq.png"), _c, _1_size))
     _kot(dwg, _c, "b", ox=-20, oy=30)
 
     dwg.save()

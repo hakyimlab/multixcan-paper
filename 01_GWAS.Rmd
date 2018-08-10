@@ -10,6 +10,7 @@ suppressWarnings(library(ggplot2))
 suppressWarnings(library(readr))
 suppressWarnings(library(ggpubr))
 suppressWarnings(library(qvalue))
+suppressWarnings(library(xtable))
 suppressWarnings(source("_helpers_misc.R"))
 suppressWarnings(source("_helpers_file_logic.R"))
 suppressWarnings(source("_helpers_plots.R"))
@@ -55,7 +56,7 @@ p_save_delim(stats, file.path(results_dir, "gwas_smultixcan_stats.txt"))
 
 plot_n_significant_comparison(stats, threshold=400) %>% save_png( file.path(plots_dir, "smt_vs_sp_number_significant.png"), height=800, width=800)
 plot_n_significant_only_comparison(stats) %>% save_png( file.path(plots_dir, "smt_only_vs_sp_only_number_significant.png"), height=800, width=800)
-
+ 
 sp_significant <- pheno_info %>% select(tag, consortium, name) %>% 
   inner_join(analisis_results$sp_significant, by=c("tag"="phenotype")) %>%
   select(consortium, name, tag, gene, gene_name, model,  zscore, pval) %>% rename(pvalue=pval)

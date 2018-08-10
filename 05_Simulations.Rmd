@@ -36,13 +36,25 @@ null_30 <- "data/simulations/random__ccn30__mt_results.txt" %>% load_mt_("null",
 (function(){
   null_exp <- data.frame(pvalue = runif(nrow(null_30)))
   p <- qq_compare_(null_exp,null_30) + 
-    ggtitle("QQ-Plot", "Significance for no effect on trait\n from predicted expression") +
+    ggtitle("QQ-Plot", "Trait without genetic component\ncomparison to expected distribution") +
     xlab(expression(-log10(expected~pvalue))) +
     ylab(expression(-log10(observed~pvalue))) +
     coord_cartesian(xlim=c(0,4.5), ylim=c(0,4.5)) +
     paper_plot_theme_a()
    
   p %>% save_png(fp_("null_30_qq.png"), 800, 800)
+})()
+
+null_0 <- "data/simulations/random__ccn0__mt_results.txt" %>% load_mt_("null", "null_cn0")
+(function(){
+  p <- qq_compare_(null_0,null_30) + 
+    ggtitle("QQ-Plot", "Trait without genetic component\ncomparison to unregularized MultiXcan") +
+    xlab(expression(No~Regularization~-log10(expected~pvalue))) +
+    ylab(expression(PCA~Regularization-log10(observed~pvalue))) +
+    coord_cartesian(xlim=c(0,4.5), ylim=c(0,4.5)) +
+    paper_plot_theme_a()
+   
+  p %>% save_png(fp_("null_0_qq.png"), 800, 800)
 })()
 ```
 
@@ -53,7 +65,7 @@ null_30 <- "data/simulations/random__ccn30__mt_results.txt" %>% load_mt_("null",
   mt_0_ <- "data/simulations/random__ccn0__mt_results.txt" %>% load_d_("multixcan", "a")
   
   d <- rbind(mt_30_, mt_0_) %>% mutate(y = -log10(pvalue))
-  d$label <- factor(d$label, levels=c("a", "b", "c"), labels=c("multixcan\nNo regularization", "multixcan\ncondition\nnumber 1", "multixcan\ncondition\nnumber 30"))
+  d$label <- factor(d$label, levels=c("a", "b", "c"), labels=c("MultiXcan\nNo regularization", "MultiXcan\ncondition\nnumber 1", "MultiXcan\ncondition\nnumber 30"))
   
   n_genes <- nrow(mt_30_)
   b_ <- -log10(0.05/n_genes)
@@ -66,20 +78,20 @@ null_30 <- "data/simulations/random__ccn30__mt_results.txt" %>% load_mt_("null",
 
 ```{r single_tissue, echo=FALSE, cache=TRUE}
 (function(){
-  mt_30_ <- "data/simulations/single_tissue__ccn30_cc5__mt_results.txt" %>% load_d_("multixcan", "c")
+  mt_30_ <- "data/simulations/single_tissue__ccn30_ccfv__mt_results.txt" %>% load_d_("multixcan", "c")
   #mt_1_ <- "data/simulations/single_tissue__ccn1_cc10__mt_results.txt" %>% load_d_("multixcan", "b")
-  mt_0_ <- "data/simulations/single_tissue__ccn0_cc5__mt_results.txt" %>% load_d_("multixcan", "a")
-  p_ <- "data/simulations/single_tissue__ccn0_cc5__p_results.txt" %>% load_d_("predixcan", "d")
+  mt_0_ <- "data/simulations/single_tissue__ccn0_ccfv__mt_results.txt" %>% load_d_("multixcan", "a")
+  p_ <- "data/simulations/single_tissue__ccn0_ccfv__p_results.txt" %>% load_d_("predixcan", "d")
   
   d <- rbind(mt_30_, mt_0_, p_) %>% mutate(y = -log10(pvalue))
-  d$label <- factor(d$label, levels=c("a","b", "c", "d"), labels=c("multixcan\nNo regularization", "multixcan\ncondition\nnumber 1",  "multixcan\nPCA regularization", "predixcan") )
+  d$label <- factor(d$label, levels=c("a","b", "c", "d"), labels=c("MultiXcan\nNo regularization", "MultiXcan\ncondition\nnumber 1",  "MultiXcan\nPCA regularization", "PrediXcan\nWhole Blood") )
   n_genes <- nrow(mt_30_)
   b_ <- -log10(0.05/n_genes)
 
   #subtitle <- expression(Trait==5%*%(Gaussian~Noise)+1%*%(Whole~Blood~Expression))
   #subtitle <- bquote("Whole blood, "~.(n_genes)"\n"~y==10%*%N(0,1)+P[Whole~Blood]) #paste0("Whole blood, ", n_genes, " genes\n")
   title <- paste0("Simulated trait depending on single tissue\n", n_genes, " genes")
-  subtitle <- expression(Y==5%*%N(0,1)+t[Whole~Blood])
+  subtitle <- expression(Y==t[Whole~Blood]+epsilon)
   p <- the_box_plot_(d) + xlab("Method") + ylab(expression(Significance~(-log10(pvalue)))) + 
     ggtitle(title, subtitle=subtitle)
   p %>% save_png(fp_("single_tissue_bp.png"), 800, 800)
@@ -87,44 +99,44 @@ null_30 <- "data/simulations/random__ccn30__mt_results.txt" %>% load_mt_("null",
 ```
 
 ```{r combination_correlated, echo=FALSE, cache=TRUE}
-(function(){
-  mt_30_ <- "data/simulations/combination_from_correlated__ccn30_cc5_cs1_t0.9__mt_results.txt" %>% load_d_("multixcan", "c")
-  #mt_1_ <- "data/simulations/combination_from_correlated__ccn1_cc5_cs1_t0.9__mt_results.txt" %>% load_d_("multixcan", "b")
-  mt_0_ <- "data/simulations/combination_from_correlated__ccn0_cc5_cs1_t0.9__mt_results.txt" %>% load_d_("multixcan", "a")
-  mt_t_ <- "data/simulations/combination_from_correlated_truth__cc5_cs1_t0.9__mt_results.txt" %>% load_d_("multixcan", "d") 
-  p_ <- "data/simulations/combination_from_correlated__ccn0_cc5_cs1_t0.9__p_results.txt" %>% load_d_("predixcan", "e") %>% 
-    group_by(gene) %>% top_n(n=1, wt=pvalue) %>% data.frame
-  
-  d <- rbind(mt_30_, mt_0_, mt_t_, p_) %>% mutate(y = -log10(pvalue))
-  d$label <- factor(d$label, levels=c("a", "b", "c", "d", "e"), labels=c("multixcan\nNo regularization", "multixcan\ncondition\nnumber 1", "multixcan\nPCA regularization", "multixcan\ncausal tissues\nonly", "predixcan\nBest Tissue"))
-  n_genes <- nrow(mt_30_)
-  b_ <- -log10(0.05/n_genes)
-  
-  title <- paste0("Simulated trait depending on two correlated tissues\n", n_genes, " genes")
-  subtitle <- expression(Y==5%*%N(0,1)+frac(t[colon]+t[prostrate],sqrt(2)))
-  p <- the_box_plot_(d) + xlab("Method") + ylab(expression(Significance~(-log10(pvalue)))) + 
-    ggtitle(title, subtitle=subtitle)
-  p %>% save_png(fp_("correlated_tissues_bp.png"), 800, 800)
-})()
+# (function(){
+#   mt_30_ <- "data/simulations/combination_from_correlated__ccn30_cc5_cs1_t0.9__mt_results.txt" %>% load_d_("multixcan", "c")
+#   #mt_1_ <- "data/simulations/combination_from_correlated__ccn1_cc5_cs1_t0.9__mt_results.txt" %>% load_d_("multixcan", "b")
+#   mt_0_ <- "data/simulations/combination_from_correlated__ccn0_cc5_cs1_t0.9__mt_results.txt" %>% load_d_("multixcan", "a")
+#   mt_t_ <- "data/simulations/combination_from_correlated_truth__cc5_cs1_t0.9__mt_results.txt" %>% load_d_("multixcan", "d") 
+#   p_ <- "data/simulations/combination_from_correlated__ccn0_cc5_cs1_t0.9__p_results.txt" %>% load_d_("predixcan", "e") %>% 
+#     group_by(gene) %>% top_n(n=1, wt=pvalue) %>% data.frame
+#   
+#   d <- rbind(mt_30_, mt_0_, mt_t_, p_) %>% mutate(y = -log10(pvalue))
+#   d$label <- factor(d$label, levels=c("a", "b", "c", "d", "e"), labels=c("multixcan\nNo regularization", "multixcan\ncondition\nnumber 1", "multixcan\nPCA regularization", "multixcan\ncausal tissues\nonly", "predixcan\nBest Tissue"))
+#   n_genes <- nrow(mt_30_)
+#   b_ <- -log10(0.05/n_genes)
+#   
+#   title <- paste0("Simulated trait depending on two correlated tissues\n", n_genes, " genes")
+#   subtitle <- expression(Y==5%*%N(0,1)+frac(t[colon]+t[prostrate],sqrt(2)))
+#   p <- the_box_plot_(d) + xlab("Method") + ylab(expression(Significance~(-log10(pvalue)))) + 
+#     ggtitle(title, subtitle=subtitle)
+#   p %>% save_png(fp_("correlated_tissues_bp.png"), 800, 800)
+# })()
 ```
 
 ```{r combination_brain, echo=FALSE, cache=TRUE}
 (function(){
-  mt_30_ <- "data/simulations/combination_brain__ccn30_cc5__mt_results.txt" %>% load_d_("multixcan", "c")
+  mt_30_ <- "data/simulations/combination_brain__ccn30_ccfv__mt_results.txt" %>% load_d_("multixcan", "c")
   #mt_1_ <- "data/simulations/combination_brain__ccn1_cc5__mt_results.txt" %>% load_d_("multixcan", "b")
-  mt_0_ <- "data/simulations/combination_brain__ccn0_cc5__mt_results.txt" %>% load_d_("multixcan", "a")
-  mt_t_ <- "data/simulations/combination_brain_truth__cc5__mt_results.txt" %>% load_d_("multixcan", "d") 
-  p_ <- "data/simulations/combination_brain__ccn0_cc5__p_results.txt" %>% load_d_("predixcan", "e") %>% 
+  mt_0_ <- "data/simulations/combination_brain__ccn0_ccfv__mt_results.txt" %>% load_d_("multixcan", "a")
+  mt_t_ <- "data/simulations/combination_brain_truth__ccfv__mt_results.txt" %>% load_d_("multixcan", "d") 
+  p_ <- "data/simulations/combination_brain__ccn0_ccfv__p_results.txt" %>% load_d_("predixcan", "e") %>% 
     group_by(gene) %>% top_n(n=1, wt=pvalue) %>% data.frame
   
   d <- rbind(mt_30_, mt_0_, mt_t_,  p_) %>% mutate(y = -log10(pvalue))
-  d$label <- factor(d$label, levels=c("a", "b", "c", "d", "e"), labels= c("multixcan\nNo regularization", "multixcan\ncondition\nnumber 1", "multixcan\nPCA regularization", "multixcan\ncausal tissues\nonly", "predixcan\nBest Tissue"))
+  d$label <- factor(d$label, levels=c("a", "b", "c", "e", "d"), labels= c("MultiXcan\nNo regularization", "MultiXcan\ncondition\nnumber 1", "MultiXcan\nPCA regularization", "MultiXcan\ncausal tissues\nonly", "PrediXcan\nBest Tissue"))
   n_genes <- nrow(mt_30_)
   b_ <- -log10(0.05/n_genes)
   
   #subtitle <- paste0("Cerebellum, Cerebellar Hemisphere, Hippocampus,\n Cortex, Frontal Cortex BA9\n", n_genes, " genes")
   title <- paste0("Simulated trait depending on 5 brain tissues\n", n_genes, " genes")
-  subtitle <- expression(Y==5%*%N(0,1)+frac(1,sqrt(5))%*%sum(t[i], i=1, 5))
+  subtitle <- expression(Y==sum(t[i], i=1, 5)~+~epsilon)
   p <- the_box_plot_(d) + xlab("Method") + ylab(expression(Significance~(-log10(pvalue)))) + 
     ggtitle("Simulated trait depending on 5 brain tissues", subtitle=subtitle)
   p %>% save_png(fp_("combination_brain_bp.png"), 800, 800)
@@ -154,14 +166,14 @@ null_30 <- "data/simulations/random__ccn30__mt_results.txt" %>% load_mt_("null",
 
 ```{r combination_all, echo=FALSE, cache=TRUE}
 (function(){
-  mt_30_ <- "data/simulations/combination_all_1kr__ccn30_cc5__mt_results.txt" %>% load_d_("multixcan", "c")
-  mt_0_ <- "data/simulations/combination_all_1kr__ccn0_cc5__mt_results.txt" %>% load_d_("multixcan", "a")
+  mt_30_ <- "data/simulations/combination_all_1kr__ccn30_ccfv__mt_results.txt" %>% load_d_("multixcan", "c")
+  mt_0_ <- "data/simulations/combination_all_1kr__ccn0_ccfv__mt_results.txt" %>% load_d_("multixcan", "a")
   #mt_1_ <- "data/simulations/combination_all_1kr__ccn1_cc30__mt_results.txt" %>% load_d_("multixcan", "b")
-  #mt_t_ <- "data/simulations/combination_all_1kr_truth__ccn30_cc5__mt_results.txt" %>% load_d_("multixcan", "d") 
-  p_ <- "data/simulations/combination_all_1kr__ccn30_cc5__p_results.txt" %>% load_d_("predixcan", "e") %>% 
+  #mt_t_ <- "data/simulations/combination_all_1kr_truth__ccfv__mt_results.txt" %>% load_d_("multixcan", "d") 
+  p_ <- "data/simulations/combination_all_1kr__ccn30_ccfv__p_results.txt" %>% load_d_("predixcan", "e") %>% 
     group_by(gene) %>% top_n(n=1, wt=pvalue) %>% data.frame
   
-  d <- rbind(mt_30_, mt_0_,  p_) %>% mutate(y = -log10(pvalue))
+  d <- rbind(mt_30_, mt_0_, p_) %>% mutate(y = -log10(pvalue))
   d$label <- factor(d$label, levels=c("a", "b", "c", "d", "e"), 
                     labels=c("multixcan\nNo regularization", "multixcan\ncondition\nnumber 1", "multixcan\ncondition\nnumber 30", "multixcan\ncausal tissues\nonly", "predixcan\nBest Tissue"))
   n_genes <- nrow(mt_30_)
@@ -169,7 +181,7 @@ null_30 <- "data/simulations/random__ccn30__mt_results.txt" %>% load_mt_("null",
   
   #subtitle <- paste0('All available tissues\n', n_genes, " genes")
   title <- paste0("Simulated trait depending on all tissues\n", n_genes, " genes")
-  subtitle <- expression(Y==5%*%N(0,1)+frac(1,sqrt(p))%*%sum(t[i], i=1, p))
+  subtitle <- expression(Y==sum(t[i], i=1, p)~+~epsilon)
   p <- the_box_plot_(d) + xlab("Method") + ylab(expression(Significance~(-log10(pvalue)))) + 
     ggtitle(title, subtitle = subtitle)
   p %>% save_png(fp_("combination_all_bp.png"), 800, 800)
@@ -178,11 +190,11 @@ null_30 <- "data/simulations/random__ccn30__mt_results.txt" %>% load_mt_("null",
 
 ```{r combination_all_tendency, echo=FALSE, cache=TRUE}
 (function(){
-  mt_30_ <- "data/simulations/combination_all_1kr__ccn30_cc5__mt_results.txt" %>% load_mt_("multixcan", "condition number 30") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "All tissues as causal")
-  mt_0_ <- "data/simulations/combination_all_1kr__ccn0_cc5__mt_results.txt" %>% load_mt_("multixcan", "None") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "All tissues as causal")
+  mt_30_ <- "data/simulations/combination_all_1kr__ccn30_ccfv__mt_results.txt" %>% load_mt_("multixcan", "condition number 30") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "All tissues as causal")
+  mt_0_ <- "data/simulations/combination_all_1kr__ccn0_ccfv__mt_results.txt" %>% load_mt_("multixcan", "None") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "All tissues as causal")
 
-  mtb_30_ <- "data/simulations/combination_brain__ccn30_cc5__mt_results.txt" %>% load_mt_("multixcan", "condition number 30") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "5 Brain Tissues as causal")
-  mtb_0_ <- "data/simulations/combination_brain__ccn0_cc5__mt_results.txt" %>% load_mt_("multixcan", "None") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "5 Brain Tissues as causal")
+  mtb_30_ <- "data/simulations/combination_brain__ccn30_ccfv__mt_results.txt" %>% load_mt_("multixcan", "condition number 30") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "5 Brain Tissues as causal")
+  mtb_0_ <- "data/simulations/combination_brain__ccn0_ccfv__mt_results.txt" %>% load_mt_("multixcan", "None") %>% select(gene, pvalue, label, n_models) %>% mutate(facet = "5 Brain Tissues as causal")
   
   d <- rbind(mt_30_, mt_0_, mtb_30_, mtb_0_) %>% mutate(s = -log10(pvalue))
 
@@ -207,9 +219,11 @@ null_30 <- "data/simulations/random__ccn30__mt_results.txt" %>% load_mt_("null",
   #d3 <- load_mt_logic_(comb_l) %>% mutate(label = factor(cn), y = -log10(pvalue), the_facet="Height")
    
   d <- rbind(d1, d2)#, d3)
-  d$label <- factor(d$label, levels=seq(0,100,10), labels=c("No\nregularization", seq(10,100,10)))
+  d$label <- factor(d$label, levels=c(seq(10,100,10), 0), labels=c(seq(10,100,10), "\nNo\nregularization\n"))
   p <- the_box_plot_(d) + xlab("Condition number") + ylab(expression(Significance~(-log10(pvalue)))) + 
-    ggtitle("Significance", subtitle="Different regularization thresholds") + facet_wrap(~the_facet, ncol=1, scales="free")
+    ggtitle("Significance", subtitle="Different regularization thresholds") + 
+    facet_wrap(~the_facet, ncol=1, scales="free") +
+    theme(plot.margin = unit(c(0.2,1.3,0.2,0.2), "cm"))
   p %>% save_png(fp_("pc.png"), 800, 600)
 })()
 ```

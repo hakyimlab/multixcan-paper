@@ -206,7 +206,7 @@ mt_vs_smt_summary <-  get_mt_vs_smt_summary_(names)
     mutate(overlapi = pmin(nm,np), overlapa = pmin(n_multixcan_significant, n_predixcan_significant)) %>% mutate(of = overlapi*100.0/overlapa) %>% #mutate(of = pmin(of, 100)) %>%
     .$of %>% median()
 
-  r <- data.frame(field=c("MulTixcan wins", "Ties", "PrediXcan wins", "No detection", "MulTixcan Median Improvement", "Median overlap"),
+  r <- data.frame(field=c("MultiXcan wins", "Ties", "PrediXcan wins", "No detection", "MultiXcan Median Improvement", "Median overlap"),
                   value=c(m_wins, m_tie, p_wins,  m_none,  m_how_many, m_overlap),
     stringsAsFactors = FALSE)
 

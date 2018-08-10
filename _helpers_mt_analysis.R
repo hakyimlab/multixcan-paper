@@ -181,21 +181,21 @@ plot_n_significant_comparison_ <- function(d, threshold) {
 
 plot_n_significant_comparison <- function(stats, threshold=600) {
   p <- stats %>%
-    dplyr::mutate(x=pmin(n_smultixcan_significant, threshold), y=pmin(n_spredixcan_significant,threshold)) %>%
+    dplyr::mutate(x=pmin(n_spredixcan_significant,threshold), y=pmin(n_smultixcan_significant, threshold)) %>%
     plot_n_significant_comparison_(threshold) 
-  p + ggplot2::xlab("#(S-MulTiXcan Significant)") +
-    ggplot2::ylab("#(S-PrediXcan Significant)") +
-    ggplot2::ggtitle("Significant associations\nfor S-MulTiXcan and S-PrediXcan", subtitle="# significant associations for each method") + 
+  p + ggplot2::xlab("#(S-PrediXcan Significant)") +
+    ggplot2::ylab("#(S-MultiXcan Significant)") +
+    ggplot2::ggtitle("S-MultiXcan vs S-PrediXcan detections\n across 222 traits", subtitle="# significant associations for each method") + 
     paper_plot_theme_a()
 }
 
 plot_n_significant_only_comparison <- function(stats, threshold=200) {
   p <- stats %>%
-    dplyr::mutate(x=pmin(n_smultixcan_only, threshold), y=pmin(n_spredixcan_only,threshold)) %>%
+    dplyr::mutate(x=pmin(n_spredixcan_only,threshold), y=pmin(n_smultixcan_only, threshold)) %>%
     plot_n_significant_comparison_(threshold)
-  p + ggplot2::xlab("#(S-MulTiXcan Significant only)") +
-    ggplot2::ylab("#(S-PrediXcan Significant only)") + 
-    ggplot2::ggtitle("Significant associations\neither in S-MulTiXcan or S-PrediXcan", subtitle="# significant associations only on one method") + 
+  p + ggplot2::xlab("#(S-PrediXcan Significant only)") +
+    ggplot2::ylab("#(S-MultiXcan Significant only)") + 
+    ggplot2::ggtitle("S-MultiXcan vs S-PrediXcan detections\n across 222 traits", subtitle="# significant associations only on one method") + 
     paper_plot_theme_a()
 }
 
@@ -203,21 +203,21 @@ plot_n_significant_only_comparison <- function(stats, threshold=200) {
 
 plot_n_significant_comparison_i <- function(stats, threshold=1000) {
   p <- stats %>%
-    dplyr::mutate(x=pmin(n_multixcan_significant, threshold), y=pmin(n_predixcan_significant,threshold)) %>%
+    dplyr::mutate(x=pmin(n_predixcan_significant, threshold), y=pmin(n_multixcan_significant,threshold)) %>%
     plot_n_significant_comparison_(threshold) 
-  p + ggplot2::xlab("#(MulTiXcan Significant)") +
-    ggplot2::ylab("#(PrediXcan Significant)") +
-    ggplot2::ggtitle("Significant associations\nfor MulTiXcan and PrediXcan", subtitle="# significant associations for each method") + 
+  p + ggplot2::xlab("#(PrediXcan Significant)") +
+    ggplot2::ylab("#(MultiXcan Significant)") +
+    ggplot2::ggtitle("MultiXcan vs PrediXcan detections\n across 222 traits", subtitle="# significant associations") + 
     paper_plot_theme_a()
 }
 
 plot_n_significant_only_comparison_i <- function(stats, threshold=200) {
   p <- stats %>%
-    dplyr::mutate(x=pmin(n_multixcan_only, threshold), y=pmin(n_predixcan_only,threshold)) %>%
+    dplyr::mutate(x=pmin(n_predixcan_only, threshold), y=pmin(n_multixcan_only,threshold)) %>%
     plot_n_significant_comparison_(threshold)
-  p + ggplot2::xlab("#(MulTiXcan Significant only)") +
-    ggplot2::ylab("#(PrediXcan Significant only)") + 
-    ggplot2::ggtitle("Significant associations\neither in MulTiXcan or PrediXcan", subtitle="# significant associations only on one method") + 
+  p + ggplot2::xlab("#(PrediXcan Significant only)") +
+    ggplot2::ylab("#(MultiXcan Significant only)") + 
+    ggplot2::ggtitle("Significant associations\neither in MultiXcan or PrediXcan", subtitle="# significant associations only on one method") + 
     paper_plot_theme_a()
 }
 

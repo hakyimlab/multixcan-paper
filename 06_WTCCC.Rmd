@@ -36,9 +36,9 @@ if(!dir.exists(plots_dir)) dir.create(plots_dir)
     suppressWarnings(path %>% r_tsv_) %>%
     filter(!is.na(pvalue)) %>% select(gene, pvalue) %>% mutate(method=method_)
   }
-  mt_30 <- l_("data/wtccc/mt_wtccc_t1d_cn30.txt.gz", "MulTiXcan")
-  smt_30_ep <- l_("data/wtccc/smt_wtccc_t1d__gtexep_cn30.txt", "S_MulTiXcan_Naive_Prediction")
-  smt_30_rp <- l_("data/wtccc/smt_wtccc_t1d__gtexrp_cn30.txt", "S_MulTiXcan_Corrected_Prediction") 
+  mt_30 <- l_("data/wtccc/mt_wtccc_t1d_cn30.txt.gz", "MultiXcan")
+  smt_30_ep <- l_("data/wtccc/smt_wtccc_t1d__gtexep_cn30.txt", "S_MultiXcan_Naive_Prediction")
+  smt_30_rp <- l_("data/wtccc/smt_wtccc_t1d__gtexrp_cn30.txt", "S_MultiXcan_Corrected_Prediction") 
   
   d <- mt_30 %>% inner_join(smt_30_ep, by="gene") %>% mutate(x = -log10(pvalue.x), y = -log10(pvalue.y), label="a")
   d <- rbind(d, mt_30 %>% inner_join(smt_30_rp, by="gene") %>% mutate(x = -log10(pvalue.x), y = -log10(pvalue.y), label="b"))
@@ -46,8 +46,8 @@ if(!dir.exists(plots_dir)) dir.create(plots_dir)
   d$label <- factor(d$label, levels=c("a","b"), labels=c("Naive Prediction, All SNPs in reference panel", "Corrected Prediction, only SNPs in intersection with GWAS") )
   p <- mt_scatter_plot_(d) + 
     facet_wrap(~label) + 
-    xlab(expression(MulTiXcan~(-log10(pvalue)))) + 
-    ylab(expression(S-MulTiXcan~(-log10(pvalue)))) +
+    xlab(expression(MultiXcan~(-log10(pvalue)))) + 
+    ylab(expression(S-MultiXcan~(-log10(pvalue)))) +
     ggtitle("Predicted Expression Inference Accuracy\nWellcome Trust T1D")
   p %>% mt_scatter_plot_theme_ %>% save_png(file.path(plots_dir, "t1d_snp_intersection.png"), 600, 1200)
   
@@ -61,9 +61,9 @@ if(!dir.exists(plots_dir)) dir.create(plots_dir)
 #     suppressWarnings(path %>% r_tsv_) %>%
 #     filter(!is.na(pvalue)) %>% select(gene, pvalue) %>% mutate(method=method_)
 #   }
-#   mt_30 <- l_("data/ukb/mt_ukb_cn30/UKB_Standing_height_c50.txt", "MulTiXcan")
-#   smt_30_ep <- l_("data/wtccc/smt_ukb_height_o__gtexep_c30.txt", "S_MulTiXcan_Naive_Prediction")
-#   smt_30_rp <- l_("data/wtccc/smt_ukb_height_o__gtexrp_c30.txt", "S_MulTiXcan_Corrected_Prediction")
+#   mt_30 <- l_("data/ukb/mt_ukb_cn30/UKB_Standing_height_c50.txt", "MultiXcan")
+#   smt_30_ep <- l_("data/wtccc/smt_ukb_height_o__gtexep_c30.txt", "S_MultiXcan_Naive_Prediction")
+#   smt_30_rp <- l_("data/wtccc/smt_ukb_height_o__gtexrp_c30.txt", "S_MultiXcan_Corrected_Prediction")
 # 
 #   d <- mt_30 %>% inner_join(smt_30_ep, by="gene") %>% mutate(x = -log10(pvalue.x), y = -log10(pvalue.y), label="a")
 #   d <- rbind(d, mt_30 %>% inner_join(smt_30_rp, by="gene") %>% mutate(x = -log10(pvalue.x), y = -log10(pvalue.y), label="b"))
@@ -71,8 +71,8 @@ if(!dir.exists(plots_dir)) dir.create(plots_dir)
 #   d$label <- factor(d$label, levels=c("a","b"), labels=c("Naive Prediction, All SNPs in reference panel", "Corrected Prediction, only SNPs in intersection with GWAS") )
 #   p <- mt_scatter_plot_(d) +
 #     facet_wrap(~label) +
-#     xlab(expression(MulTiXcan~(-log10(pvalue)))) +
-#     ylab(expression(S-MulTiXcan~(-log10(pvalue)))) +
+#     xlab(expression(MultiXcan~(-log10(pvalue)))) +
+#     ylab(expression(S-MultiXcan~(-log10(pvalue)))) +
 #     ggtitle("Predicted Expression Inference Accuracy\nUKB Height")
 #   p %>% mt_scatter_plot_theme_ %>% save_png(file.path(plots_dir, "ukb_height_snp_intersection.png"), 600, 1200)
 # 

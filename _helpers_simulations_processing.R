@@ -20,7 +20,8 @@ load_mt_logic_ <- function(comb_l) {
     d <- rbind(d, d_)
   }
   d
-}
+} +
+  theme(plot.margin = unit(c(1,1,1,1), "cm"))
 
 get_sim_mt_logic <- function(path, pattern, transform = NULL) {
   files <- sort(list.files(path))

@@ -1,6 +1,6 @@
 
 
-qq_plot_mt_vs_all_univariate <- function(mt_predixcan, predixcan, selected_model, t_method_name="MulTiXcan", p_method_name="PrediXcan") {
+qq_plot_mt_vs_all_univariate <- function(mt_predixcan, predixcan, selected_model, t_method_name="MultiXcan", p_method_name="PrediXcan") {
   label_s_ <- paste0(p_method_name," (", selected_model, ")")
   label_a_ <- paste0(p_method_name, " (all tissues)")
   
@@ -25,7 +25,7 @@ qq_plot_mt_vs_all_univariate <- function(mt_predixcan, predixcan, selected_model
   qq_plot_(qq_, config) + paper_plot_theme_a() + guides(colour = guide_legend(override.aes = list(size=4)))
 }
 
-significant_discoveries_bar_plot_ <- function(y, selected_model, t_method_name="MulTiXcan", p_method_name="PrediXcan", label=NULL) {
+significant_discoveries_bar_plot_ <- function(y, selected_model, t_method_name="MultiXcan", p_method_name="PrediXcan", label=NULL) {
   label_s_ <- paste0(p_method_name,"\n(", textify(selected_model), ")")
   label_a_ <- paste0(p_method_name, "\n(all tissues)")
   x <- c( label_s_, label_a_, t_method_name)
@@ -40,7 +40,7 @@ significant_discoveries_bar_plot_ <- function(y, selected_model, t_method_name="
                       limits=c(t_method_name, label_a_, label_s_))
 }
 
-significant_discoveries_bar_plot <- function(mt_predixcan, predixcan, selected_model, t_method_name="MulTiXcan", p_method_name="PrediXcan", significant_f=get_bonferroni_significant_gene_count) {
+significant_discoveries_bar_plot <- function(mt_predixcan, predixcan, selected_model, t_method_name="MultiXcan", p_method_name="PrediXcan", significant_f=get_bonferroni_significant_gene_count) {
   mt_ <- mt_predixcan %>% dplyr::filter(!is.na(pvalue))
   p_ <- predixcan %>% dplyr::filter(!is.na(pvalue))
   
@@ -60,6 +60,6 @@ do_scatter_plot_mt_vs_smt <- function(names) {
   mtm <- load_mt_results(names$mtp, names$name)
   smtm <- load_mt_results(names$smtp, names$name)
   scatter_plot_mt(mtm, smtm) + 
-    xlab(expression(bold('MulTiXcan (-log'[10]*'(p-value))'))) +
-    ylab(expression(bold('S-MulTiXcan (-log'[10]*'(p-value))')))
+    xlab(expression(bold('MultiXcan (-log'[10]*'(p-value))'))) +
+    ylab(expression(bold('S-MultiXcan (-log'[10]*'(p-value))')))
 }
