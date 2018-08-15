@@ -1,0 +1,74 @@
+---
+title: "07_Suspicious"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressWarnings(library(dplyr))
+suppressWarnings(library(ggplot2))
+suppressWarnings(library(readr))
+suppressWarnings(library(xtable))
+suppressWarnings(library(qvalue))
+suppressWarnings(library(ggcorrplot))
+suppressWarnings(library(cluster))
+suppressWarnings(library(plot3D))
+suppressWarnings(library(plotROC))
+suppressWarnings(source("_helpers_misc.R"))
+suppressWarnings(source("_helpers_results_files.R"))
+suppressWarnings(source("_helpers_file_logic.R"))
+suppressWarnings(source("_helpers_plots.R"))
+suppressWarnings(source("_helpers_qq.R"))
+suppressWarnings(source("_helpers_scatter.R"))
+suppressWarnings(source("_helpers_comparison_plots.R"))
+suppressWarnings(source("_helpers_mt_analysis.R"))
+suppressWarnings(source("_helpers_simulations_processing.R"))
+suppressWarnings(source("_helpers_suspicious.R"))
+```
+
+# Setup
+
+```{r folders, echo=FALSE}
+results_dir <- 'results'
+if(!dir.exists(results_dir)) dir.create(results_dir)
+
+plots_dir_ <- file.path(results_dir, "plots")
+if(!dir.exists(plots_dir_)) dir.create(plots_dir_)
+
+plots_dir <- file.path(plots_dir_, "ukb")
+if(!dir.exists(plots_dir)) dir.create(plots_dir)
+
+fp_ <- function(file) { file.path(plots_dir, file) }
+```
+
+```{r preliminaries, echo=FALSE, cache=TRUE}
+gencode <- read.delim("data/gencode.v19.flat.txt.gz")
+names <- ukb_file_metadata_smt_mt("data/ukb/ukb_column_to_name.csv", "data/ukb/smt_ukb_ccn_30", "data/ukb/mt_ukb_cn30")
+```
+
+```{r data, echo=FALSE, cache=TRUE}
+d <- load_s_data(names)
+d %>% p_save_delim(file.path(results_dir, "smultixcan_wrong.txt"))
+```
+
+```{r roc, echo=FALSE, cache=TRUE}
+(function(){
+  p <- ggplot(d) + 
+    geom_roc(aes(d=right, m=-log10(p_i_best)), n.cuts=20) +
+    geom_abline(slope=-1, intercept=1) +
+    ggtitle(expression(-log10(p_i_best)~as~marker)) +
+    style_roc()
+  p %>% save_png(fp_("roc.png"), 800, 800)
+})()
+```
+
+```{r significance, echo=FALSE, cache=TRUE}
+
+significance_data <- get_significance_comparison_(d)
+```
+
+
+```{r box_plots, echo=FALSE, cache=TRUE}
+(plot_suspicious_c_(d, f=proportion_true_positive_) + ggtitle("#significant/#reliable")) %>% save_png(fp_("_bs.png"), 600, 600)
+(plot_suspicious_c_(d, f=proportion_true_negative_) + ggtitle("#insignificant/#unreliable")) %>% save_png(fp_("_bi.png"), 600, 600)
+(plot_suspicious_c_(d, f=proportion_p_) + ggtitle("#individual p >1e-4/#unreliable")) %>% save_png(fp_("_bp.png"), 600, 600)
+```
