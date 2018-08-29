@@ -37,6 +37,25 @@ roc_ <- function(d_, threshold) {
              threshold=threshold)
 }
 
+true_significative_ <- function(d_, threshold) {
+  d_ %>% filter(pvalue<b, mt_pvalue < b) %>% nrow()
+}
+
+false_significative_ <- function(d_, threshold) {
+  d_ %>% filter(pvalue<b, mt_pvalue >= b) %>% nrow()
+}
+
+
+significative_ <- function(d_, threshold) {
+  t_ <- true_significative_(d_, threshold)
+  f_ <- false_significative_(d_, threshold)
+  trait_ <- d_$trait %>% unique()
+  data.frame(trait=trait_, 
+             true_significative=t_, 
+             false_significative=f_,
+             proportion_false=f_/(f_+t_))
+}
+
 proportion_p_ <- function(d_, threshold) {
   reliable <- d_ %>% filter(p_i_best<threshold) %>% nrow()
   significant <- d_ %>% filter(p_i_best<threshold & mt_pvalue > 1e-4) %>% nrow()

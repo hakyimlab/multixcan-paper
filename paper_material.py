@@ -87,7 +87,7 @@ def figure_3(args):
 
     # diagram is (341,972); plots are 600,600; illustration is 455,571
     _1_size = (600, 600)
-    _2_size = (600, 507*600.0/610)
+    _2_size = (526*600.0/552, 600)
     _size = (_1_size[0]*2+80, _1_size[1]*2+40)
 
     dwg = svgwrite.Drawing(_p, size=_size)
@@ -217,7 +217,7 @@ def shove(args):
                 ("ukb_multixcan_stats.txt",),
                 ("ukb_p_significant.txt",),
                 ("ukb_multixcan_significant.txt",),
-                ("ukb_individual_flagged.txt",),
+                ("ukb_individual_pm.txt",),
                 ("wtccc_t1d.txt",)]
     _shove(args.input_folder, args.output_folder, supp_data, "supp-data-")
 

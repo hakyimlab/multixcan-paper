@@ -57,7 +57,8 @@ scatter_plot_mt <- function(mt1, mt2) {
 }
 
 do_scatter_plot_mt_vs_smt <- function(names) {
-  mtm <- load_mt_results(names$mtp, names$name)
+  #mtm <- load_mt_results(names$mtp, names$name, columns=c("gene", "pvalue", "p_i_best")) %>% filter(p_i_best < 1e-4)
+  mtm <- load_mt_results(names$mtp, names$name, columns=c("gene", "pvalue"))
   smtm <- load_mt_results(names$smtp, names$name)
   scatter_plot_mt(mtm, smtm) + 
     xlab(expression(bold('MultiXcan (-log'[10]*'(p-value))'))) +

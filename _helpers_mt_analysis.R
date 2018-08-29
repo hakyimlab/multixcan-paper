@@ -17,12 +17,13 @@ spredixcan_significant_gtex_q_ <- function(sp) {
   sp_ %>% dplyr::mutate(qvalue = q) %>% dplyr::filter(qvalue < 0.05)
 }
 
-smt_significant_minus_suspicious_ <- function(smt) {
+smt_significant_reliable_ <- function(smt) {
   smt_ <- smt %>% dplyr::filter(!is.null(pvalue)) %>% dplyr::mutate(gene = remove_id_from_ensemble(gene))
-  smt_ %>% dplyr::filter(pvalue < 0.05/nrow(smt_) & p_i_best<1e-4)
+  #smt_ %>% dplyr::filter(pvalue < 0.05/nrow(smt_) & (p_i_best<1e-4 | pvalue<1e-8))
+  smt_ %>% dplyr::filter(pvalue < 0.05/nrow(smt_) & (p_i_best<1e-4))
 }
 
-smt_significant_minus_suspicious_q_ <- function(smt) {
+smt_significant_reliable_q_ <- function(smt) {
   smt_ <- smt %>% dplyr::filter(!is.null(pvalue)) %>% dplyr::mutate(gene = remove_id_from_ensemble(gene))
   q <- tryCatch({
     qvalue(p = smt_$pvalue)$qvalues
@@ -39,7 +40,7 @@ smt_significant_suspicious_ <- function(smt) {
   smt_ %>% dplyr::filter(pvalue < 0.05/nrow(smt_)) %>% mutate(suspicious = (pvalue < 0.05/nrow(smt_) & p_i_best>1e-4))
 }
 
-get_m_smt_stats__ <- function(m_, smt_, spredixcan_significant_m=spredixcan_significant_gtex_, smt_significant_m=smt_significant_minus_suspicious_) {
+get_m_smt_stats__ <- function(m_, smt_, spredixcan_significant_m=spredixcan_significant_gtex_, smt_significant_m=smt_significant_reliable_) {
   m_significant_ <- spredixcan_significant_m(m_)
   m_genes_ <- unique(m_significant_$gene)
   
@@ -52,16 +53,16 @@ get_m_smt_stats__ <- function(m_, smt_, spredixcan_significant_m=spredixcan_sign
 }
 
 get_m_smt_stats_ <- function(m_, smt_) {
-  get_m_smt_stats__(m_, smt_, spredixcan_significant_gtex_, smt_significant_minus_suspicious_)
+  get_m_smt_stats__(m_, smt_, spredixcan_significant_gtex_, smt_significant_reliable_)
 }
 
 get_m_smt_stats_q_ <- function(m_, smt_) {
-  get_m_smt_stats__(m_, smt_, spredixcan_significant_gtex_q_, smt_significant_minus_suspicious_q_)
+  get_m_smt_stats__(m_, smt_, spredixcan_significant_gtex_q_, smt_significant_reliable_q_)
 }
 
 #
 get_mt_metaxcan_analysis <- function(metaxcan_data_folder, smt_folder, verbose=FALSE, stats_f_=get_m_smt_stats_, 
-                                     spredixcan_significant_m=spredixcan_significant_gtex_, smt_significant_m=smt_significant_minus_suspicious_) {
+                                     spredixcan_significant_m=spredixcan_significant_gtex_, smt_significant_m=smt_significant_reliable_) {
   metaxcan_file_logic <- get_files_d_(metaxcan_data_folder)
   smt_file_logic <- get_smt_files_d_(smt_folder)
   file_logic <- metaxcan_file_logic %>%
@@ -148,19 +149,22 @@ get_mt_predixcan_analysis <- function(mt_folder, predixcan_folder, verbose=FALSE
   list(stats=stats, p_significant=p_significant, mt_significant=mt_significant)
 }
 
-get_mt_individual_suspicious <- function(mt_folder_0, mt_folder_30, verbose=FALSE) {
-  mt_file_logic_0 <- get_mt_files_d_(mt_folder_0)
+get_mt_individual_suspicious <- function(predixcan_folder, mt_folder_30, verbose=FALSE) {
+  predixcan_file_logic <- univariate_file_logic(predixcan_folder)
   mt_file_logic_30 <- get_mt_files_d_(mt_folder_30)
   
   stats <- data.frame()
   for (name_ in mt_file_logic_30$mt_name) {
     if(verbose) { message(paste0("Processing ", name_)) }
-    mt_0 <- suppressWarnings(mt_file_logic_0 %>% dplyr::filter(mt_name == name_) %>% .$mtp %>% r_tsv_() %>% dplyr::mutate(phenotype = name_))
-    mt_30 <- suppressWarnings(mt_file_logic_30 %>% dplyr::filter(mt_name == name_) %>% .$mtp %>% r_tsv_() %>% dplyr::mutate(phenotype = name_))
-    d <- mt_0 %>% rename(pvalue_30 = pvalue) %>% select(gene, p_i_best, pvalue_30) %>% inner_join(mt_30 %>% select(gene, pvalue), by= "gene")
+    mt_30 <- suppressWarnings(mt_file_logic_30 %>% dplyr::filter(mt_name == name_) %>% .$mtp %>% r_tsv_(col_types=cols_only(gene="c",  pvalue="d")) %>% dplyr::mutate(phenotype = name_))
+    
+    p_ <- suppressWarnings(load_univariate_files(predixcan_file_logic %>% filter(name == name_), col_types=cols_only(gene="c", pvalue="d"))) %>%
+      group_by(gene) %>% top_n(1, wt=-pvalue) %>% rename(predixcan_p = pvalue)
+    
+    d <- mt_30 %>% inner_join(p_, by="gene")
 
     b <- 0.05/nrow(d %>% filter(!is.na(pvalue)))
-    su_ <- d %>% filter(pvalue < b, p_i_best > 1e-4) %>% nrow()
+    su_ <- d %>% filter(pvalue < b, predixcan_p > 1e-4) %>% nrow()
     si_ <- d %>% filter(pvalue < b) %>% nrow()
     stats <- rbind(stats, data.frame(trait=name_, n_flagged=su_, n_significant=si_, stringsAsFactors = FALSE))
   }
@@ -195,7 +199,7 @@ plot_n_significant_only_comparison <- function(stats, threshold=200) {
     plot_n_significant_comparison_(threshold)
   p + ggplot2::xlab("#(S-PrediXcan Significant only)") +
     ggplot2::ylab("#(S-MultiXcan Significant only)") + 
-    ggplot2::ggtitle("S-MultiXcan vs S-PrediXcan detections\n across 222 traits", subtitle="# significant associations only on one method") + 
+    ggplot2::ggtitle("S-MultiXcan vs S-PrediXcan Discoveries\n across 222 traits", subtitle="# significant associations only on one method") + 
     paper_plot_theme_a()
 }
 

@@ -121,11 +121,11 @@ univariate_file_logic <- function(path) {
   r
 }
 
-load_univariate_files <- function(file_logic, read_f_=r_tsv_) {
+load_univariate_files <- function(file_logic, read_f_=r_tsv_, col_types=NULL) {
   data <- data.frame()
   for (i in 1:nrow(file_logic)) {
     l_ <- file_logic[i,]
-    d_ <- read_f_(l_$path) %>% dplyr::mutate(phenotype = l_$name, model=l_$tissue)
+    d_ <- read_f_(l_$path, col_types = col_types) %>% dplyr::mutate(phenotype = l_$name, model=l_$tissue)
     data <- rbind(data, d_)
   }
   data

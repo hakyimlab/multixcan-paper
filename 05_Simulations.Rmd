@@ -90,7 +90,7 @@ null_0 <- "data/simulations/random__ccn0__mt_results.txt" %>% load_mt_("null", "
 
   #subtitle <- expression(Trait==5%*%(Gaussian~Noise)+1%*%(Whole~Blood~Expression))
   #subtitle <- bquote("Whole blood, "~.(n_genes)"\n"~y==10%*%N(0,1)+P[Whole~Blood]) #paste0("Whole blood, ", n_genes, " genes\n")
-  title <- paste0("Simulated trait depending on single tissue\n", n_genes, " genes")
+  title <- paste0("Simulated trait: single causal tissue")
   subtitle <- expression(Y==t[Whole~Blood]+epsilon)
   p <- the_box_plot_(d) + xlab("Method") + ylab(expression(Significance~(-log10(pvalue)))) + 
     ggtitle(title, subtitle=subtitle)
@@ -128,17 +128,17 @@ null_0 <- "data/simulations/random__ccn0__mt_results.txt" %>% load_mt_("null", "
   mt_t_ <- "data/simulations/combination_brain_truth__ccfv__mt_results.txt" %>% load_d_("multixcan", "d") 
   p_ <- "data/simulations/combination_brain__ccn0_ccfv__p_results.txt" %>% load_d_("predixcan", "e") %>% 
     group_by(gene) %>% top_n(n=1, wt=pvalue) %>% data.frame
-  
+
   d <- rbind(mt_30_, mt_0_, mt_t_,  p_) %>% mutate(y = -log10(pvalue))
-  d$label <- factor(d$label, levels=c("a", "b", "c", "e", "d"), labels= c("MultiXcan\nNo regularization", "MultiXcan\ncondition\nnumber 1", "MultiXcan\nPCA regularization", "MultiXcan\ncausal tissues\nonly", "PrediXcan\nBest Tissue"))
+  d$label <- factor(d$label, levels=c("a", "b", "c", "e", "d"), labels= c("MultiXcan\nNo regularization", "MultiXcan\ncondition\nnumber 1", "MultiXcan\nPCA regularization", "PrediXcan\nBest Tissue", "MultiXcan\ncausal tissues\nonly"))
   n_genes <- nrow(mt_30_)
   b_ <- -log10(0.05/n_genes)
   
   #subtitle <- paste0("Cerebellum, Cerebellar Hemisphere, Hippocampus,\n Cortex, Frontal Cortex BA9\n", n_genes, " genes")
-  title <- paste0("Simulated trait depending on 5 brain tissues\n", n_genes, " genes")
+  title <- paste0("Simulated trait: 5 causal tissues")
   subtitle <- expression(Y==sum(t[i], i=1, 5)~+~epsilon)
   p <- the_box_plot_(d) + xlab("Method") + ylab(expression(Significance~(-log10(pvalue)))) + 
-    ggtitle("Simulated trait depending on 5 brain tissues", subtitle=subtitle)
+    ggtitle(title, subtitle=subtitle)
   p %>% save_png(fp_("combination_brain_bp.png"), 800, 800)
 })()
 ```
@@ -175,12 +175,12 @@ null_0 <- "data/simulations/random__ccn0__mt_results.txt" %>% load_mt_("null", "
   
   d <- rbind(mt_30_, mt_0_, p_) %>% mutate(y = -log10(pvalue))
   d$label <- factor(d$label, levels=c("a", "b", "c", "d", "e"), 
-                    labels=c("multixcan\nNo regularization", "multixcan\ncondition\nnumber 1", "multixcan\ncondition\nnumber 30", "multixcan\ncausal tissues\nonly", "predixcan\nBest Tissue"))
+                    labels=c("MultiXcan\nNo regularization", "MultiXcan\ncondition\nnumber 1", "MultiXcan\nPCA regularization", "MultiXcan\ncausal tissues\nonly", "PrediXcan\nBest Tissue"))
   n_genes <- nrow(mt_30_)
   b_ <- -log10(0.05/n_genes)
   
   #subtitle <- paste0('All available tissues\n', n_genes, " genes")
-  title <- paste0("Simulated trait depending on all tissues\n", n_genes, " genes")
+  title <- paste0("Simulated trait: all tissues are causal")
   subtitle <- expression(Y==sum(t[i], i=1, p)~+~epsilon)
   p <- the_box_plot_(d) + xlab("Method") + ylab(expression(Significance~(-log10(pvalue)))) + 
     ggtitle(title, subtitle = subtitle)

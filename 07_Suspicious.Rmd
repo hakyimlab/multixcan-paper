@@ -52,23 +52,36 @@ d %>% p_save_delim(file.path(results_dir, "smultixcan_wrong.txt"))
 
 ```{r roc, echo=FALSE, cache=TRUE}
 (function(){
-  p <- ggplot(d) + 
-    geom_roc(aes(d=right, m=-log10(p_i_best)), n.cuts=20) +
+  ( ggplot(d) + 
+    geom_roc(aes(d=right, m=ifelse(pvalue>1e-8,-log10(p_i_best),30)), n.cuts=20, cutoffs.at = seq(1,15, 0.5)) +
     geom_abline(slope=-1, intercept=1) +
     ggtitle(expression(-log10(p_i_best)~as~marker)) +
-    style_roc()
-  p %>% save_png(fp_("roc.png"), 800, 800)
+    style_roc() ) %>% save_png(fp_("roc.png"), 800, 800)
+  
+  k <- d %>% filter(pvalue < b) %>% group_by(trait ) %>% summarise(n = n()) %>% filter(n>50) %>% .$trait
+  
+  ( ggplot(d %>% filter(trait %in% k) ) + 
+    geom_roc(aes(d=right, m=-log10(p_i_best), color=trait), n.cuts=20, show.legend=FALSE) +
+    geom_abline(slope=-1, intercept=1) +
+    ggtitle(expression(-log10(p_i_best)~as~marker)) +
+    style_roc() ) %>% save_png(fp_("roc_c.png"), 800, 800)
+  
 })()
 ```
 
 ```{r significance, echo=FALSE, cache=TRUE}
-
 significance_data <- get_significance_comparison_(d)
+significance_data %>% p_save_delim(file.path(results_dir,"truth_reliability_ukb.txt"))
+```
+
+```{r significance_2, echo=FALSE, cache=TRUE}
+significance_data <- get_significance_comparison_(d, thresholds = c(1), f=significative_)
+significance_data %>% p_save_delim(file.path(results_dir,"truth_ukb.txt"))
 ```
 
 
 ```{r box_plots, echo=FALSE, cache=TRUE}
-(plot_suspicious_c_(d, f=proportion_true_positive_) + ggtitle("#significant/#reliable")) %>% save_png(fp_("_bs.png"), 600, 600)
-(plot_suspicious_c_(d, f=proportion_true_negative_) + ggtitle("#insignificant/#unreliable")) %>% save_png(fp_("_bi.png"), 600, 600)
+(plot_suspicious_c_(d, f=proportion_true_positive_) + ggtitle("#true unreliable / #significant")) %>% save_png(fp_("_bs.png"), 600, 600)
+(plot_suspicious_c_(d, f=proportion_true_negative_) + ggtitle("#true unreliable / #insignificant")) %>% save_png(fp_("_bi.png"), 600, 600)
 (plot_suspicious_c_(d, f=proportion_p_) + ggtitle("#individual p >1e-4/#unreliable")) %>% save_png(fp_("_bp.png"), 600, 600)
 ```

@@ -46,11 +46,13 @@ pheno_info %>% select(consortium, name, tag, sample_size, population, portal, pu
 
 # GWAS results comparison
 
-```{r mt_metaxcan_analysis, echo=FALSE, cache=TRUE}
+```{r mt_metaxcan_analysis, echo=FALSE, cache=TRUE} 
 analisis_results <- get_mt_metaxcan_analysis("data/gene2pheno_dev_hm_1.5", "data/smt/smt_gwas_ccn_30")#, verbose=TRUE)
+
 ```
 
 ```{r mt_metaxcan_analysis_output, echo=FALSE, cache=TRUE}
+
 stats <- pheno_info %>% select(tag, consortium, name) %>% inner_join(analisis_results$stats, by="tag")
 p_save_delim(stats, file.path(results_dir, "gwas_smultixcan_stats.txt"))
 

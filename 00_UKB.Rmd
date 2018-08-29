@@ -176,9 +176,12 @@ mt_significant_q <- analisis_results_q$mt_significant %>% inner_join(gencode, by
 p_save_delim(mt_significant_q, file.path(results_dir, "ukb_multixcan_significant_q.txt"))
 ```
 
-```{r, mt_individual_suspicious}
-mt_individual_suspicious <- get_mt_individual_suspicious ("data/ukb/mt_ukb_cn0", "data/ukb/mt_ukb_cn30",) %>% arrange(-n_flagged) %>% mutate(percent=n_flagged*100/n_significant)
-p_save_delim(mt_individual_suspicious, file.path(results_dir, "ukb_individual_flagged.txt"))
+```{r, mt_individual_suspicious, echo=FALSE, cache=TRUE}
+mt_individual_suspicious <- get_mt_individual_suspicious ("data/ukb/predixcan", "data/ukb/mt_ukb_cn30") %>% 
+  arrange(-n_flagged) %>% mutate(percent=n_flagged*100/n_significant) %>% mutate(percent = format(percent, digits=2, nsmall=2)) %>%
+  rename(n_predixcan_modest=n_flagged, n_multixcan_significant=n_significant)
+
+p_save_delim(mt_individual_suspicious, file.path(results_dir, "ukb_individual_pm.txt"))
 ```
 
 ```{r smt_conservative, echo=FALSE, cache=TRUE}
